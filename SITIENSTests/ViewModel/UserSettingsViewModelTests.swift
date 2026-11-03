@@ -386,4 +386,33 @@ struct UserSettingsViewModelTests {
         #expect(user == "")
             
         }
+
+    // MARK: - Remise à zéro quotidienne
+
+    private var parisCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Europe/Paris")!
+        return calendar
+    }
+
+    private func date(_ day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
+        parisCalendar.date(from: DateComponents(year: 2026, month: 11, day: day, hour: hour, minute: minute))!
+    }
+
+    @Test func isNewDayWhenNothingTrackedYet() {
+        let viewModel = UserSettingsViewModel()
+        #expect(viewModel.isNewDay(lastTracking: 0, now: date(3, 12), calendar: parisCalendar) == false)
+    }
+
+    @Test func isNewDayWhenSameDay() {
+        let viewModel = UserSettingsViewModel()
+        let last = date(3, 0, 5).timeIntervalSince1970
+        #expect(viewModel.isNewDay(lastTracking: last, now: date(3, 23, 59), calendar: parisCalendar) == false)
+    }
+
+    @Test func isNewDayAfterMidnight() {
+        let viewModel = UserSettingsViewModel()
+        let last = date(3, 23, 50).timeIntervalSince1970
+        #expect(viewModel.isNewDay(lastTracking: last, now: date(4, 0, 10), calendar: parisCalendar) == true)
+    }
 }

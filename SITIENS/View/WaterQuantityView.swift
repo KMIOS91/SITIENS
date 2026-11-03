@@ -14,6 +14,9 @@ struct WaterQuantityView: View {
     @AppStorage("progress")  var progressRaw: Double = 0
     @AppStorage("profilType") var profilTypeRaw: String = ""
     @AppStorage("glace") var glaceRaw: String = ""
+    /// Date (timestamp) du dernier verre ajouté, pour remettre le suivi à zéro chaque jour.
+    @AppStorage("lastTrackingDate") var lastTrackingDate: Double = 0
+    @Environment(\.scenePhase) private var scenePhase
     @State var updateHeight : CGFloat = 0
     @State var sheetPresented : Bool = false
     @State var profilType : String = ""
@@ -142,6 +145,7 @@ struct WaterQuantityView: View {
                     progress = CGFloat(progressRaw)
                     profilType = profilTypeRaw
                     glace = glaceRaw
+                    resetIfNewDay()
                     
                     withAnimation(
                         .linear(duration: 0.8)
@@ -227,7 +231,12 @@ struct WaterQuantityView: View {
             settingsToolbar
             historyToolbar
         }
+        .onChange(of: scenePhase) {
+            // L'app peut rester ouverte en arrière-plan pendant la nuit.
+            if scenePhase == .active { resetIfNewDay() }
+        }
         .onChange(of: updateHeight) {
+            if updateHeight > 0 { lastTrackingDate = Date.now.timeIntervalSince1970 }
             updateHeightRaw = Double(updateHeight)
             progressRaw = Double(progress)
             profilTypeRaw = profilType
@@ -251,6 +260,15 @@ struct WaterQuantityView: View {
             }
         }
 
+    }
+    
+    /// Le suivi est journalier : un nouveau jour repart de zéro.
+    private func resetIfNewDay() {
+        guard userSettingsViewModel.isNewDay(lastTracking: lastTrackingDate) else { return }
+        progress = 0
+        progressRaw = 0
+        updateHeight = 0
+        lastTrackingDate = 0
     }
     
     private var backgroundGradient: some View {

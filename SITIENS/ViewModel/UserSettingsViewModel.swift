@@ -128,6 +128,14 @@ class UserSettingsViewModel{
         return Double(result)
     }
     
+    /// Indique si le suivi doit repartir à zéro : vrai quand le dernier ajout d'eau date d'un autre jour.
+    /// `lastTracking` vaut 0 quand aucun verre n'a encore été ajouté.
+    func isNewDay(lastTracking: TimeInterval, now: Date = .now, calendar: Calendar = .current) -> Bool {
+        guard lastTracking > 0 else { return false }
+        let lastDate = Date(timeIntervalSince1970: lastTracking)
+        return !calendar.isDate(lastDate, inSameDayAs: now)
+    }
+
     func chooseBottleOfWater(name type: String) -> String {
         switch type {
         case "Petit – 200 ml" :

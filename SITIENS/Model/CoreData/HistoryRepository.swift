@@ -20,20 +20,24 @@ struct HistoryRepository: HistoryProtocol {
     func getHisoData()  throws -> [History] {
         let result: [History] = try context.performAndWait {
             let request: NSFetchRequest<History> = History.fetchRequest()
-            request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
+            // Plus récent en premier. Les entrées créées avant la version 2 du modèle
+            // n'ont pas de `createdAt` et se retrouvent en fin de liste.
+            request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
             return try context.fetch(request)
         }
         return result
     }
 
     func addtHisoData(name: String, quantity: String) throws {
-        let dateFormatted = Date.now.formatted(date: .numeric, time: .shortened)
+        let now = Date.now
+        let dateFormatted = now.formatted(date: .numeric, time: .shortened)
         
         try context.performAndWait {
             let newHistory = History(context: context)
             newHistory.name = name
             newHistory.quantity = quantity
             newHistory.date = dateFormatted
+            newHistory.createdAt = now
             try context.save()
         }
     }
