@@ -35,9 +35,8 @@ struct UserSettingsView: View {
                         CustomPicker(name: $profil, type: $profileType)
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
-                    .shadow(radius: 5)
+                    // Carte en verre iOS 26 (Liquid Glass)
+                    .glassEffect(.regular, in: .rect(cornerRadius: 20))
                     
                     VStack (alignment: .leading, spacing: 12){
                         Text("Sélectionner un récipient")
@@ -45,9 +44,8 @@ struct UserSettingsView: View {
                         CustomPicker(name: $glace, type: $sizeOfGlace)
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
-                    .shadow(radius: 5)
+                    // Carte en verre iOS 26 (Liquid Glass)
+                    .glassEffect(.regular, in: .rect(cornerRadius: 20))
                     
                     Spacer()
                     
@@ -59,13 +57,12 @@ struct UserSettingsView: View {
                         }
                         
                     } label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .frame(height: 50)
-                            Text("Valider")
-                                .foregroundStyle(.white)
-                        }
+                        Text("Valider")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.large)
                     .disabled(profil.isEmpty || glace.isEmpty)
                     .padding()
                     .accessibilityLabel("Bouton Valider")
@@ -110,12 +107,7 @@ struct CustomPicker: View {
         }
         .pickerStyle(.navigationLink)
         .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-        )
+        .background(Color.primary.opacity(0.06), in: .rect(cornerRadius: 12))
         .accessibilityLabel(name)
         .accessibilityHint("Appuyez pour choisir une \(name.lowercased())")
        

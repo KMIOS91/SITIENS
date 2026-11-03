@@ -70,19 +70,13 @@ struct TimerSettings: View {
                             }
                             .pickerStyle(.navigationLink)
                             .padding()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                            )
+                            .background(Color.primary.opacity(0.06), in: .rect(cornerRadius: 12))
                             .accessibilityLabel("Sélection du temps")
                             .accessibilityHint("Appuyez pour choisir une durée")
                         }
                         .padding()
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(16)
-                        .shadow(radius: 5)
+                        // Carte en verre iOS 26 (Liquid Glass)
+                        .glassEffect(.regular, in: .rect(cornerRadius: 20))
                         
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Sélectionner l'audio")
@@ -102,19 +96,13 @@ struct TimerSettings: View {
                             }
                             .pickerStyle(.navigationLink)
                             .padding()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                            )
+                            .background(Color.primary.opacity(0.06), in: .rect(cornerRadius: 12))
                             .accessibilityLabel("Sélectionner un son")
                             .accessibilityHint("Double-cliquez pour choisir un audio")
                         }
                         .padding()
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(16)
-                        .shadow(radius: 5)
+                        // Carte en verre iOS 26 (Liquid Glass)
+                        .glassEffect(.regular, in: .rect(cornerRadius: 20))
                         
                         CustomButton(
                             isPlaying: $isPlaying,
@@ -139,18 +127,18 @@ struct TimerSettings: View {
                 }
                 .navigationTitle("Paramètres")
             }
-            
-            Spacer()
-            
-            CustomButton(
-                isPlaying: $isPlaying,
-                hydrationActivationViewModel:
-                hydrationActivationViewModel,
-                selectedItems: $selectedItems,
-                type: "Validate",
-                selectedHour: $selectedHour,
-                updateSlide : $updateSlide
-            )
+            // Le bouton reste en bas de l'écran, posé sur le dégradé.
+            .safeAreaInset(edge: .bottom) {
+                CustomButton(
+                    isPlaying: $isPlaying,
+                    hydrationActivationViewModel:
+                    hydrationActivationViewModel,
+                    selectedItems: $selectedItems,
+                    type: "Validate",
+                    selectedHour: $selectedHour,
+                    updateSlide : $updateSlide
+                )
+            }
         }
         .onDisappear{
             hydrationActivationViewModel.stopPlaying()
@@ -223,14 +211,12 @@ struct CustomButton: View {
                     }
                 }
             } label: {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .frame(height: 50)
-                        .foregroundStyle(.black)
-                    Text("Valider")
-                        .foregroundStyle(.white)
-                }
+                Text("Valider")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
             .disabled(test() == true)
             .padding()
         }

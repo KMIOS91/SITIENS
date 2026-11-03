@@ -165,21 +165,13 @@ struct WaterQuantityView: View {
                     }
                     
                 } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .frame(height: 50)
-                            .foregroundStyle(.orange)
-                            .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
-                        
-                        
-                        HStack {
-                            Text("Réinitialiser")
-                                .foregroundStyle(.white)
-                            Image(systemName: "arrow.counterclockwise")
-                                .foregroundStyle(.white)
-                        }
-                    }
+                    Label("Réinitialiser", systemImage: "arrow.counterclockwise")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.glassProminent)
+                .tint(.orange)
+                .controlSize(.large)
                 .padding()
                 .accessibilityLabel("Réinitialiser le suivi")
                 .accessibilityHint("Remet le niveau d'eau et la progression à zéro")
