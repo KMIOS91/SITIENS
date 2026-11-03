@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreData
 import Combine
+import WidgetKit
 
 struct WaterQuantityView: View {
     @AppStorage("updateHeight") var updateHeightRaw : Double = 0
@@ -146,6 +147,7 @@ struct WaterQuantityView: View {
                     profilType = profilTypeRaw
                     glace = glaceRaw
                     resetIfNewDay()
+                    publishToWidget()
                     
                     withAnimation(
                         .linear(duration: 0.8)
@@ -223,6 +225,10 @@ struct WaterQuantityView: View {
             settingsToolbar
             historyToolbar
         }
+        .onChange(of: profilType) {
+            profilTypeRaw = profilType
+            publishToWidget()
+        }
         .onChange(of: scenePhase) {
             // L'app peut rester ouverte en arrière-plan pendant la nuit.
             if scenePhase == .active { resetIfNewDay() }
@@ -233,6 +239,7 @@ struct WaterQuantityView: View {
             progressRaw = Double(progress)
             profilTypeRaw = profilType
             glaceRaw = glace
+            publishToWidget()
             
             if updateHeight >= 300 {
                 
@@ -261,6 +268,25 @@ struct WaterQuantityView: View {
         progressRaw = 0
         updateHeight = 0
         lastTrackingDate = 0
+    }
+    
+    /// Transmet la quantité du jour au widget (via l'App Group) et lui demande de se redessiner.
+    private func publishToWidget() {
+        let target = Double(targetWater)
+        let snapshot = HydrationSnapshot(
+            liters: min(Double(currentWater), target),
+            targetLiters: target,
+            updatedAt: .now
+        )
+        // Rien de neuf aujourd'hui : inutile de redessiner le widget.
+        if let previous = SharedHydrationStore.load(),
+           previous.liters == snapshot.liters,
+           previous.targetLiters == snapshot.targetLiters,
+           Calendar.current.isDateInToday(previous.updatedAt) {
+            return
+        }
+        SharedHydrationStore.save(snapshot)
+        WidgetCenter.shared.reloadTimelines(ofKind: SharedHydrationStore.widgetKind)
     }
     
     private var backgroundGradient: some View {

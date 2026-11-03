@@ -32,7 +32,7 @@ struct UserSettingsView: View {
                         Text("Sélectionner un profil")
                             .font(.headline)
                         
-                        CustomPicker(name: $profil, type: $profileType)
+                        CustomPicker(title: "Profil", name: $profil, type: $profileType)
                     }
                     .padding()
                     // Carte en verre iOS 26 (Liquid Glass)
@@ -41,7 +41,7 @@ struct UserSettingsView: View {
                     VStack (alignment: .leading, spacing: 12){
                         Text("Sélectionner un récipient")
                             .font(.headline)
-                        CustomPicker(name: $glace, type: $sizeOfGlace)
+                        CustomPicker(title: "Récipient", name: $glace, type: $sizeOfGlace)
                     }
                     .padding()
                     // Carte en verre iOS 26 (Liquid Glass)
@@ -83,6 +83,8 @@ struct UserSettingsView: View {
 }
 
 struct CustomPicker: View {
+    /// Nom lu par VoiceOver (« Profil », « Récipient »).
+    let title: String
     @Binding var name : String
     @Binding var type : [String]
     
@@ -108,8 +110,9 @@ struct CustomPicker: View {
         .pickerStyle(.navigationLink)
         .padding()
         .background(Color.primary.opacity(0.06), in: .rect(cornerRadius: 12))
-        .accessibilityLabel(name)
-        .accessibilityHint("Appuyez pour choisir une \(name.lowercased())")
+        .accessibilityLabel(title)
+        .accessibilityValue(name.isEmpty ? "Non sélectionné" : name)
+        .accessibilityHint("Appuyez pour choisir")
        
     }
 }
