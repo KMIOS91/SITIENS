@@ -33,6 +33,7 @@ struct Start_timer: View {
                         timerIsReading = false
                         hydrationActivationViewModel.stopPlaying()
                         hydrationActivationViewModel.cancelNotification()
+                        HydrationLiveActivity.endAll()
                         
                         if timerhour == 0 && timeInterval == 0 {
                             DispatchQueue.main
@@ -156,6 +157,7 @@ struct Start_timer: View {
             }else{
                 stopTimer()
                 hydrationActivationViewModel.cancelNotification()
+                HydrationLiveActivity.pause(remaining: timeInterval)
             }
         }
     }
@@ -195,7 +197,9 @@ struct Start_timer: View {
         startDate = now
         
         // Le rappel est confié à iOS dès le départ : il arrivera même si l'app passe en arrière-plan.
-        hydrationActivationViewModel.scheduleNotification(in: max(timerhour - elapseBeforPause, 0))
+        let remaining = max(timerhour - elapseBeforPause, 0)
+        hydrationActivationViewModel.scheduleNotification(in: remaining)
+        HydrationLiveActivity.start(remaining: remaining, total: timerhour)
         
         cancellable?.cancel()
         cancellable = Timer.publish(every: 1, on: .main, in: .common)
@@ -208,6 +212,7 @@ struct Start_timer: View {
                 
                 if remainingTime == 0 {
                     stopTimer()
+                    HydrationLiveActivity.finish()
                     hydrationActivationViewModel.playingSound(audioFile: selectedItems)
                     elapseBeforPause = 0
                     UserDefaults.standard.set(0, forKey: "elapseBeforPause")

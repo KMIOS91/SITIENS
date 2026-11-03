@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		4F4B18E72E3D610F00ADD5B4 /* AppClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = 4F4B18C52E3D610D00ADD5B4 /* AppClip.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		739FF085309A807D00D089EB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 739FF084309A807D00D089EB /* WidgetKit.framework */; };
+		739FF087309A807D00D089EB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 739FF086309A807D00D089EB /* SwiftUI.framework */; };
+		739FF098309A807E00D089EB /* LiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 739FF082309A807D00D089EB /* LiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -60,6 +63,13 @@
 			remoteGlobalIDString = 4FA205942DA40CAF004C8CC4;
 			remoteInfo = SITIENS;
 		};
+		739FF096309A807E00D089EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FA2058D2DA40CAF004C8CC4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 739FF081309A807D00D089EB;
+			remoteInfo = LiveActivityExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,6 +84,17 @@
 			name = "Embed App Clips";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		739FF09D309A807E00D089EB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				739FF098309A807E00D089EB /* LiveActivityExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -83,6 +104,9 @@
 		4FA205952DA40CAF004C8CC4 /* SITIENS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SITIENS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA205A52DA40CB1004C8CC4 /* SITIENSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SITIENSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA205AF2DA40CB1004C8CC4 /* SITIENSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SITIENSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		739FF082309A807D00D089EB /* LiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		739FF084309A807D00D089EB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		739FF086309A807D00D089EB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -99,6 +123,20 @@
 				Info.plist,
 			);
 			target = 4F4B18C42E3D610D00ADD5B4 /* AppClip */;
+		};
+		739FF09C309A807E00D089EB /* Exceptions for "LiveActivity" folder in "LiveActivityExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 739FF081309A807D00D089EB /* LiveActivityExtension */;
+		};
+		739FF0A0309A900000D089EB /* Exceptions for "LiveActivity" folder in "SITIENS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				HydrationTimerAttributes.swift,
+			);
+			target = 4FA205942DA40CAF004C8CC4 /* SITIENS */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -137,6 +175,15 @@
 		4FA205B22DA40CB1004C8CC4 /* SITIENSUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SITIENSUITests;
+			sourceTree = "<group>";
+		};
+		739FF088309A807D00D089EB /* LiveActivity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				739FF0A0309A900000D089EB /* Exceptions for "LiveActivity" folder in "SITIENS" target */,
+				739FF09C309A807E00D089EB /* Exceptions for "LiveActivity" folder in "LiveActivityExtension" target */,
+			);
+			path = LiveActivity;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -184,6 +231,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		739FF07F309A807D00D089EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				739FF087309A807D00D089EB /* SwiftUI.framework in Frameworks */,
+				739FF085309A807D00D089EB /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -196,6 +252,8 @@
 				4F4B18C62E3D610D00ADD5B4 /* AppClip */,
 				4F4B18D62E3D610F00ADD5B4 /* AppClipTests */,
 				4F4B18E02E3D610F00ADD5B4 /* AppClipUITests */,
+				739FF088309A807D00D089EB /* LiveActivity */,
+				739FF083309A807D00D089EB /* Frameworks */,
 				4FA205962DA40CAF004C8CC4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -209,8 +267,18 @@
 				4F4B18C52E3D610D00ADD5B4 /* AppClip.app */,
 				4F4B18D32E3D610F00ADD5B4 /* AppClipTests.xctest */,
 				4F4B18DD2E3D610F00ADD5B4 /* AppClipUITests.xctest */,
+				739FF082309A807D00D089EB /* LiveActivityExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		739FF083309A807D00D089EB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				739FF084309A807D00D089EB /* WidgetKit.framework */,
+				739FF086309A807D00D089EB /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -292,12 +360,14 @@
 				4FA205922DA40CAF004C8CC4 /* Frameworks */,
 				4FA205932DA40CAF004C8CC4 /* Resources */,
 				4F4B18E82E3D610F00ADD5B4 /* Embed App Clips */,
+				739FF09D309A807E00D089EB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 				4F7E7ACB2E3D19CD009073D6 /* PBXBuildRule */,
 			);
 			dependencies = (
 				4F4B18E62E3D610F00ADD5B4 /* PBXTargetDependency */,
+				739FF097309A807E00D089EB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4FA205972DA40CAF004C8CC4 /* SITIENS */,
@@ -355,6 +425,28 @@
 			productReference = 4FA205AF2DA40CB1004C8CC4 /* SITIENSUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		739FF081309A807D00D089EB /* LiveActivityExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 739FF099309A807E00D089EB /* Build configuration list for PBXNativeTarget "LiveActivityExtension" */;
+			buildPhases = (
+				739FF07E309A807D00D089EB /* Sources */,
+				739FF07F309A807D00D089EB /* Frameworks */,
+				739FF080309A807D00D089EB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				739FF088309A807D00D089EB /* LiveActivity */,
+			);
+			name = LiveActivityExtension;
+			packageProductDependencies = (
+			);
+			productName = LiveActivityExtension;
+			productReference = 739FF082309A807D00D089EB /* LiveActivityExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -362,7 +454,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					4F4B18C42E3D610D00ADD5B4 = {
@@ -387,6 +479,9 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 4FA205942DA40CAF004C8CC4;
 					};
+					739FF081309A807D00D089EB = {
+						CreatedOnToolsVersion = 27.0;
+					};
 				};
 			};
 			buildConfigurationList = 4FA205902DA40CAF004C8CC4 /* Build configuration list for PBXProject "SITIENS" */;
@@ -410,6 +505,7 @@
 				4F4B18C42E3D610D00ADD5B4 /* AppClip */,
 				4F4B18D22E3D610F00ADD5B4 /* AppClipTests */,
 				4F4B18DC2E3D610F00ADD5B4 /* AppClipUITests */,
+				739FF081309A807D00D089EB /* LiveActivityExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -451,6 +547,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4FA205AD2DA40CB1004C8CC4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		739FF080309A807D00D089EB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -502,6 +605,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		739FF07E309A807D00D089EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -529,6 +639,11 @@
 			isa = PBXTargetDependency;
 			target = 4FA205942DA40CAF004C8CC4 /* SITIENS */;
 			targetProxy = 4FA205B02DA40CB1004C8CC4 /* PBXContainerItemProxy */;
+		};
+		739FF097309A807E00D089EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 739FF081309A807D00D089EB /* LiveActivityExtension */;
+			targetProxy = 739FF096309A807E00D089EB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -816,6 +931,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SITIENS/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -851,6 +967,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SITIENS/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -938,6 +1055,70 @@
 			};
 			name = Release;
 		};
+		739FF09A309A807E00D089EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99UMC25BBL;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Sitiens;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.8;
+				PRODUCT_BUNDLE_IDENTIFIER = SITIENS.SITIENS.LiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		739FF09B309A807E00D089EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99UMC25BBL;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Sitiens;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.8;
+				PRODUCT_BUNDLE_IDENTIFIER = SITIENS.SITIENS.LiveActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1000,6 +1181,15 @@
 			buildConfigurations = (
 				4FA205C02DA40CB1004C8CC4 /* Debug */,
 				4FA205C12DA40CB1004C8CC4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		739FF099309A807E00D089EB /* Build configuration list for PBXNativeTarget "LiveActivityExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				739FF09A309A807E00D089EB /* Debug */,
+				739FF09B309A807E00D089EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
