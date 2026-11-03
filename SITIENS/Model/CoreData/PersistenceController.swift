@@ -11,8 +11,6 @@ import CoreData
 final class PersistenceController : @unchecked Sendable{
     
     // MARK: - Properties
-    @preconcurrency
-    
     static let shared = PersistenceController()
     
     let container: NSPersistentContainer

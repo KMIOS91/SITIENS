@@ -65,7 +65,6 @@ struct Chronograph: View {
                 startDate = startDateRaw
                 elapseBeforPause = elapseBeforPauseRaw
                 
-                print("elapseBeforPause après le appear -> \(elapseBeforPause)")
             }
             .onChange(of: timeInterval) {
                 timeIntervalRaw = timeInterval
@@ -82,6 +81,8 @@ struct Chronograph: View {
     }
     
     func progressWater() -> CGFloat {
+        // Sans durée choisie, 0/0 donnait NaN et l'anneau s'affichait plein.
+        guard timerhour > 0 else { return 0 }
         return  CGFloat(timeInterval) / CGFloat(timerhour)
     }
     
@@ -94,7 +95,7 @@ struct Chronograph: View {
                     .fontWeight(.bold)
                     .foregroundStyle(.primary)
                     .accessibilityAddTraits(.isHeader)
-                    .accessibilityLabel("Titre: Hydradation")
+                    .accessibilityLabel("Titre : Hydratation")
                 
                 Text("Temps restant")
                     .font(.title3)
@@ -165,7 +166,7 @@ struct Chronograph: View {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(Color.orange)
-                    Text("Veuillez bien selectionner l'horraire")
+                    Text("Veuillez bien sélectionner l'horaire")
                 }
                 .opacity(showMessage ? 1 : 0)
                 .animation(

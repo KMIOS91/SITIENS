@@ -29,9 +29,8 @@ struct UserSettingsView: View {
                 
                 VStack(spacing: 30) {
                     VStack (alignment: .leading, spacing: 12){
-                        Text("Sélectionner un profile")
+                        Text("Sélectionner un profil")
                             .font(.headline)
-                            .font(.largeTitle)
                         
                         CustomPicker(name: $profil, type: $profileType)
                     }
@@ -43,7 +42,6 @@ struct UserSettingsView: View {
                     VStack (alignment: .leading, spacing: 12){
                         Text("Sélectionner un récipient")
                             .font(.headline)
-                            .font(.largeTitle)
                         CustomPicker(name: $glace, type: $sizeOfGlace)
                     }
                     .padding()
@@ -96,7 +94,7 @@ struct CustomPicker: View {
             selection: $name,
             label:
                 HStack{
-                    Text(name.isEmpty ? "Seclectionner":name)
+                    Text(name.isEmpty ? "Sélectionner":name)
                         .foregroundStyle(name.isEmpty ? .gray:.gray)
                         .lineLimit(1)
                     

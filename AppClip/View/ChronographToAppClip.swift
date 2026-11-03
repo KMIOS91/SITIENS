@@ -36,7 +36,7 @@ struct ChronographToAppClip: View {
                             .fontWeight(.bold)
                             .foregroundStyle(.primary)
                             .accessibilityAddTraits(.isHeader)
-                            .accessibilityLabel("Titre: Hydradation")
+                            .accessibilityLabel("Titre : Hydratation")
                         
                         Text("Temps restant")
                             .font(.title3)

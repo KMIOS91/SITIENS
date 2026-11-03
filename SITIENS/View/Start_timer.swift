@@ -32,6 +32,7 @@ struct Start_timer: View {
                         startDate = nil
                         timerIsReading = false
                         hydrationActivationViewModel.stopPlaying()
+                        hydrationActivationViewModel.cancelNotification()
                         
                         if timerhour == 0 && timeInterval == 0 {
                             DispatchQueue.main
@@ -154,6 +155,7 @@ struct Start_timer: View {
                 startTimer()
             }else{
                 stopTimer()
+                hydrationActivationViewModel.cancelNotification()
             }
         }
     }
@@ -176,7 +178,6 @@ struct Start_timer: View {
             let elapsedTime = Int(Date().timeIntervalSince(start))
             elapseBeforPause += elapsedTime
             UserDefaults.standard.set(elapseBeforPause, forKey: "elapseBeforPause")
-            print("⏸️ elapseBeforPause: \(elapseBeforPause)")
         }
     }
     
@@ -193,6 +194,9 @@ struct Start_timer: View {
         let now = Date()
         startDate = now
         
+        // Le rappel est confié à iOS dès le départ : il arrivera même si l'app passe en arrière-plan.
+        hydrationActivationViewModel.scheduleNotification(in: max(timerhour - elapseBeforPause, 0))
+        
         cancellable?.cancel()
         cancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
@@ -202,11 +206,8 @@ struct Start_timer: View {
                 let remainingTime = max(timerhour - elapsedTime, 0)
                 timeInterval = remainingTime
                 
-                print("⏱ Temps restant: \(remainingTime), Temps écoulé: \(elapsedTime)")
-                
                 if remainingTime == 0 {
                     stopTimer()
-                    hydrationActivationViewModel.notification()
                     hydrationActivationViewModel.playingSound(audioFile: selectedItems)
                     elapseBeforPause = 0
                     UserDefaults.standard.set(0, forKey: "elapseBeforPause")

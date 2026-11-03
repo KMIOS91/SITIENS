@@ -87,7 +87,7 @@ struct SettingNavigation: View {
             
             VStack(alignment: .center, spacing: 16) {
 
-                Text("L'eau, un allié essentiel pour vvotre vien-être.")
+                Text("L'eau, un allié essentiel pour votre bien-être.")
                     .font(.subheadline)
                     .italic()
                     .foregroundStyle(.secondary)

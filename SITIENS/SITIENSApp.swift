@@ -6,13 +6,13 @@
 //
 
 import SwiftUI
-import CoreData
-import Combine
 
 @main
 struct SITIENSApp: App {
-    @State var showMainApp: Bool = false
+    // Mémorisé : l'introduction ne s'affiche qu'au premier lancement.
+    @AppStorage("hasSeenIntro") private var showMainApp: Bool = false
     @State private var hydrationActivationViewModel = HydrationActivationViewModel()
+    @State private var historyViewModel = HistoryViewModel()
     
     var body: some Scene {
         WindowGroup {
@@ -27,7 +27,7 @@ struct SITIENSApp: App {
                         }
                         
                         Tab("Hydratation", systemImage: "drop.fill") {
-                            WaterQuantityView(historyViewModel: HistoryViewModel())
+                            WaterQuantityView(historyViewModel: historyViewModel)
                                 .transition(.opacity)
                         }
                     }
@@ -40,7 +40,7 @@ struct SITIENSApp: App {
                                 .transition(.opacity)
                         }
                         
-                        Tab("Hydratation", systemImage: "drop.fill") {
+                        Tab("Informations", systemImage: "info.circle") {
                             InformationView(hasSeenIntro: $showMainApp)
                                 .transition(.opacity)
                         }

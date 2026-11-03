@@ -58,7 +58,7 @@ struct WaterQuantityView: View {
     
     private var container : some View {
         VStack{
-            Text("Hydradation")
+            Text("Hydratation")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.blue)
@@ -169,7 +169,7 @@ struct WaterQuantityView: View {
                         
                         
                         HStack {
-                            Text("Reinitialiser")
+                            Text("Réinitialiser")
                                 .foregroundStyle(.white)
                             Image(systemName: "arrow.counterclockwise")
                                 .foregroundStyle(.white)
@@ -186,7 +186,7 @@ struct WaterQuantityView: View {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(Color.orange)
-                    Text("Veuillez bien selectionner un profil")
+                    Text("Veuillez bien sélectionner un profil")
                 }
                 .opacity(showMessage ? 1 : 0)
                 .animation(

@@ -8,68 +8,58 @@
 import Foundation
 import UserNotifications
 import AVFoundation
-import AVKit
 
 @Observable
 class DataHistoryHub : HydrationProtocol {
+    /// Identifiant fixe : un seul rappel peut être programmé à la fois.
+    static let reminderIdentifier = "sitiens.hydration.reminder"
+
     var audioPlayer: AVAudioPlayer?
-    
+
     var avAudioEngine = AVAudioEngine()
     var avAudioPlayerNode = AVAudioPlayerNode()
-    
+
     func playingSound(audioFile: String) {
         guard let url = Bundle.main.url(forResource: audioFile, withExtension: "mp3") else{
             return  print("Erreur lors du chargement du fichier")
         }
-        
+
         do{
             let file = try AVAudioFile(forReading: url)
             avAudioEngine.attach(avAudioPlayerNode)
-            
+
             avAudioEngine
                 .connect(
                     avAudioPlayerNode,
                     to: avAudioEngine.outputNode,
                     format: file.processingFormat
                 )
-            
+
               avAudioPlayerNode
                 .scheduleFile(
                     file,
                     at: nil,
                     completionCallbackType: .dataPlayedBack
                 )
-            
+
             try avAudioEngine.start()
             avAudioPlayerNode.play()
-            
+
         }catch {
             print("Erreur pendant la lecture : \(error.localizedDescription)")
         }
     }
 
     func playSound(sound:String) {
-        if let path = Bundle.main.path(forResource: sound, ofType: "mp3") {
-            do {
-                audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
-                audioPlayer?.play()
-            } catch {
-                print("ERROR")
-            }
+        guard let url = Bundle.main.url(forResource: sound, withExtension: "mp3") else { return }
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("Erreur pendant la lecture : \(error.localizedDescription)")
         }
     }
-    
-    func playSoundFotestTomusic(sound:String){
-        if let path = Bundle.main.path(forResource: sound, ofType: "mp3") {
-            do {
-                audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
-                audioPlayer?.play()
-            } catch {
-                print("ERROR")
-            }
-        }
-    }
-    
+
     func authorization(){
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (success, error) in
             if let error = error {
@@ -77,35 +67,39 @@ class DataHistoryHub : HydrationProtocol {
             }
         }
     }
-    
+
     func stopPlaying(){
         avAudioEngine.stop()
         avAudioPlayerNode.stop()
         audioPlayer = nil
     }
-    
-    func notification(){
-        //Contenu de la notification
-        let userNotification = UNMutableNotificationContent()
-        userNotification.title = "Il est temps de boire de l'eau"
 
-        userNotification.sound = UNNotificationSound.default
-        userNotification.body =  "Boire de l'eau est essentiel à notre bien-être"
-        
-        //Trigger (déclanche quand la notification sera envoyée)
+    func scheduleNotification(in seconds: Int) {
+        // Un déclencheur doit être strictement positif.
+        guard seconds > 0 else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = "Il est temps de boire de l'eau"
+        content.body = "Boire de l'eau est essentiel à notre bien-être"
+        content.sound = .default
+
         let trigger = UNTimeIntervalNotificationTrigger(
-            timeInterval: 1,
+            timeInterval: TimeInterval(seconds),
             repeats: false
         )
-        //Request
+
+        // Réutiliser le même identifiant remplace le rappel précédent au lieu d'en empiler plusieurs.
         let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: userNotification,
+            identifier: Self.reminderIdentifier,
+            content: content,
             trigger: trigger
         )
-        
-        UNUserNotificationCenter
-            .current()
-            .add(request)
+
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    func cancelNotification() {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: [Self.reminderIdentifier])
     }
 }

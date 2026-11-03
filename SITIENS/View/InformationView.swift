@@ -5,7 +5,6 @@
 //  Created by Modibo on 07/04/2025.
 //
 import SwiftUI
-import Playgrounds
 
 struct InformationView: View {
     @Binding var hasSeenIntro: Bool
