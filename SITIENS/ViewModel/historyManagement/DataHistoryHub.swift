@@ -28,14 +28,18 @@ class DataHistoryHub : HydrationProtocol {
             let file = try AVAudioFile(forReading: url)
             avAudioEngine.attach(avAudioPlayerNode)
 
-            avAudioEngine
-                .connect(
-                    avAudioPlayerNode,
-                    to: avAudioEngine.outputNode,
-                    format: file.processingFormat
-                )
+            // iOS 27 : la nouvelle API signale ses erreurs (throws) ; iOS 26 : l'ancienne.
+            if #available(iOS 27, *) {
+                try avAudioEngine.connectNode(avAudioPlayerNode,
+                                              to: avAudioEngine.outputNode,
+                                              format: file.processingFormat)
+            } else {
+                avAudioEngine.connect(avAudioPlayerNode,
+                                      to: avAudioEngine.outputNode,
+                                      format: file.processingFormat)
+            }
 
-              avAudioPlayerNode
+            avAudioPlayerNode
                 .scheduleFile(
                     file,
                     at: nil,
@@ -43,7 +47,12 @@ class DataHistoryHub : HydrationProtocol {
                 )
 
             try avAudioEngine.start()
-            avAudioPlayerNode.play()
+
+            if #available(iOS 27, *) {
+                try avAudioPlayerNode.playAudio()
+            } else {
+                avAudioPlayerNode.play()
+            }
 
         }catch {
             print("Erreur pendant la lecture : \(error.localizedDescription)")
