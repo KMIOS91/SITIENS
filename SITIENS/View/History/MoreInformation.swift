@@ -22,7 +22,7 @@ struct MoreInformation: View {
                     .accessibilityHidden(true)
 
                 VStack(spacing: 4) {
-                    Text(entry.quantity)
+                    Text(entry.quantityText)
                         .font(.system(size: 56, weight: .light, design: .rounded))
                         .monospacedDigit()
                     Text("Objectif atteint")
@@ -33,7 +33,7 @@ struct MoreInformation: View {
                 VStack(spacing: 0) {
                     DetailRow(title: "Profil", value: entry.name, systemImage: "person.fill")
                     Divider().padding(.leading, 52)
-                    DetailRow(title: "Date", value: entry.date, systemImage: "calendar")
+                    DetailRow(title: "Date", value: entry.dateText, systemImage: "calendar")
                 }
                 .glassEffect(.regular, in: .rect(cornerRadius: 20))
             }

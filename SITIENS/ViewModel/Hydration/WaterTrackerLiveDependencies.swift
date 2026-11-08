@@ -13,6 +13,7 @@ extension HistoryViewModel: GoalRecording {
     func recordGoal(profile: String, liters: Double) throws {
         name = profile
         quantity = "\(liters.formatted(.number.precision(.fractionLength(1)))) L"
+        self.liters = liters
         try addHistory()
     }
 }

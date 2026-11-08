@@ -79,9 +79,12 @@ class MocksDataProtocol : HistoryProtocol {
         return [data]
     }
 
-    func addtHisoData(name: String, quantity: String) throws {
+    var liters: Double = 0
+
+    func addtHisoData(name: String, quantity: String, liters: Double) throws {
         self.name = name
         self.quantity = quantity
+        self.liters = liters
         
         guard  !name.isEmpty || !quantity.isEmpty  else {
             messageError = "There is no data"

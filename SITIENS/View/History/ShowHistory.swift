@@ -49,8 +49,10 @@ struct ShowHistory: View {
             guard let name = entry.name, !name.isEmpty,
                   let quantity = entry.quantity, !quantity.isEmpty else { return false }
             guard !searchText.isEmpty else { return true }
-            return [entry.name, entry.quantity, entry.date].contains {
-                $0?.localizedCaseInsensitiveContains(searchText) == true
+            // On cherche dans le texte affiché : « 3,0 L », « 8 nov. 2026 »…
+            let shown = ManagementHistory(entry)
+            return [shown.name, shown.quantityText, shown.dateText].contains {
+                $0.localizedCaseInsensitiveContains(searchText)
             }
         }
     }
@@ -88,14 +90,14 @@ private struct HistoryRow: View {
                 Text(entry.name)
                     .font(.headline)
                     .lineLimit(1)
-                Text(entry.date)
+                Text(entry.dateText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
 
-            Text(entry.quantity)
+            Text(entry.quantityText)
                 .font(.system(.body, design: .rounded, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(Theme.water)

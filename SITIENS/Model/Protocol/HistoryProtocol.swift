@@ -9,6 +9,7 @@ import Foundation
 
 protocol HistoryProtocol {
     func getHisoData() throws -> [History]
-    func addtHisoData(name: String, quantity: String) throws
+    /// `quantity` : texte historique (« 3,0 L ») ; `liters` : la même quantité en nombre.
+    func addtHisoData(name: String, quantity: String, liters: Double) throws
     func deleteHistory(history: History)
 }

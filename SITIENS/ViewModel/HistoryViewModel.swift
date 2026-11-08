@@ -14,6 +14,8 @@ import SwiftUI
     var history = [History]()
     var name: String
     var quantity: String
+    /// La quantité en nombre, enregistrée à côté du texte `quantity`.
+    var liters: Double = 0
     var errorMessage = ""
     
     var viewContext: NSManagedObjectContext
@@ -53,7 +55,7 @@ import SwiftUI
         
         do {
             
-            try historyRepository.addtHisoData(name: name, quantity: quantity)
+            try historyRepository.addtHisoData(name: name, quantity: quantity, liters: liters)
             print("result : \(name) \(quantity)")
         } catch {
             print("Fetching history failed: \(error)")
