@@ -34,13 +34,8 @@ struct TimerSettings: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-                
+                AppBackground()
+
                 ScrollView {
                     VStack (spacing: 30){
                         VStack(alignment: .leading, spacing: 12) {
