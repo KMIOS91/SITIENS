@@ -3,7 +3,6 @@
 //  SITIENS
 //
 //  Implémentations réelles des dépendances de WaterTracker : historique Core Data et widget.
-//  Propres à l'app (non partagées avec l'App Clip).
 //
 
 import Foundation

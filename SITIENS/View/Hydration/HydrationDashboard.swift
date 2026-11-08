@@ -3,7 +3,7 @@
 //  SITIENS
 //
 //  Contenu de l'écran Hydratation : quantité bue, goutte, boutons et réglages du profil.
-//  Partagé avec l'App Clip ; l'app y ajoute l'historique (voir WaterQuantityView).
+//  Sans dépendance à l'historique : WaterQuantityView l'y ajoute.
 //
 
 import SwiftUI
