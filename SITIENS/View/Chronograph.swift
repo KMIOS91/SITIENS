@@ -8,7 +8,9 @@ import CoreData
 struct Chronograph: View {
     @State var timerIsReading = false
     @Bindable var hydrationActivationViewModel : HydrationActivationViewModel
-    @State var timeInterval: Int = 0
+    // Lu dès la création : sinon la valeur passe de 0 à la valeur sauvegardée dans onAppear,
+    // et l'animation de l'anneau fait glisser le cercle au lancement.
+    @State var timeInterval: Int = UserDefaults.standard.integer(forKey: "timeInterval")
     @AppStorage("timeInterval") var timeIntervalRaw: Int = 0
     @State var cancellable: AnyCancellable?
     @State var startDate: Date?
