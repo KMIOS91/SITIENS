@@ -4,50 +4,49 @@
 //
 //  Created by Modibo on 27/04/2025.
 //
-
 import Foundation
 import CoreData
 
-final class PersistenceController : @unchecked Sendable{
-    
+final class PersistenceController: Sendable {
+
     // MARK: - Properties
     static let shared = PersistenceController()
-    
+
+    /// Pour les #Preview et les tests : base en mémoire, rien n'est sauvegardé
+    static let preview = PersistenceController(inMemory: true)
+
     let container: NSPersistentContainer
-    private(set) var backgroundContext: NSManagedObjectContext?
 
     // MARK: - Init
     private init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "SitiensModel")
-        
+
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         }
-        
+
         container.loadPersistentStores { storeDescription, error in
             if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
-            
-            print("Store loaded successfully at \(storeDescription.url?.absoluteString ?? "No URL")")
-            
-            // Initialiser le contexte de fond ici, après le chargement des stores
-            self.backgroundContext = self.container.newBackgroundContext()
-            self.backgroundContext?.automaticallyMergesChangesFromParent = true
+            #if DEBUG
+            print("Store chargé : \(storeDescription.url?.absoluteString ?? "pas d'URL")")
+            #endif
         }
-        
+
         container.viewContext.automaticallyMergesChangesFromParent = true
+        container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
     }
 
-    /// Contexte principal - toujours sur le main thread
+    /// Contexte principal : uniquement depuis l'UI / le main thread
     var viewContext: NSManagedObjectContext {
         container.viewContext
     }
 
-    /// Créer un nouveau contexte de fond
+    /// Nouveau contexte de fond : un par tâche, ne pas le garder
     func newBackgroundContext() -> NSManagedObjectContext {
         let context = container.newBackgroundContext()
-        context.automaticallyMergesChangesFromParent = true
+        context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         return context
     }
 }
