@@ -73,12 +73,19 @@ class MocksHydradationActivation : HydrationProtocol{
         }
     }
 
-    func notification() {
+    var scheduledSeconds: Int?
+
+    func scheduleNotification(in seconds: Int) {
         if throwError {
             messageError = "Impossible for send notification"
         }else {
             messageError = ""
+            scheduledSeconds = seconds
         }
+    }
+
+    func cancelNotification() {
+        scheduledSeconds = nil
     }
     
 }

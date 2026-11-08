@@ -14,6 +14,8 @@ import SwiftUI
     var history = [History]()
     var name: String
     var quantity: String
+    /// La quantité en nombre, enregistrée à côté du texte `quantity`.
+    var liters: Double = 0
     var errorMessage = ""
     
     var viewContext: NSManagedObjectContext
@@ -53,7 +55,7 @@ import SwiftUI
         
         do {
             
-            try historyRepository.addtHisoData(name: name, quantity: quantity)
+            try historyRepository.addtHisoData(name: name, quantity: quantity, liters: liters)
             print("result : \(name) \(quantity)")
         } catch {
             print("Fetching history failed: \(error)")
@@ -77,19 +79,21 @@ import SwiftUI
         }
     }
     
+    /// Supprime les entrées situées à ces positions dans `history` (la liste complète).
     func deleteHistory(at offsets: IndexSet) {
-        offsets.forEach { offset in
-            guard offset < history.count else { return }
-            let historyToDelete = history[offset]
-            //            viewContext.delete(historyToDelete)
-            historyRepository.deleteHistory(history: historyToDelete)
-            print("historyToDelete : \(historyToDelete)")
+        deleteHistory(offsets.filter { $0 < history.count }.map { history[$0] })
+    }
+
+    /// Supprime ces entrées précises.
+    /// À utiliser quand la liste affichée est filtrée : ses positions ne correspondent plus à `history`.
+    func deleteHistory(_ entries: [History]) {
+        for entry in entries {
+            historyRepository.deleteHistory(history: entry)
         }
-        
-        do{
+
+        do {
             try fetchHistory()
-            print("Greate job vous avez supprimer les elements du tableaux")
-        }catch{
+        } catch {
             errorMessage = "Échec du rechargement des données : \(error.localizedDescription)"
         }
     }

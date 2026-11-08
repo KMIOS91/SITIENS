@@ -42,13 +42,7 @@ struct SettingNavigation: View {
     
     var body : some View {
         ZStack {
-            // Dégradé de fond
-            LinearGradient(
-                gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            AppBackground()
             
             if verticalSizeClass == .compact {
                 ScrollView {
@@ -87,7 +81,7 @@ struct SettingNavigation: View {
             
             VStack(alignment: .center, spacing: 16) {
 
-                Text("L'eau, un allié essentiel pour vvotre vien-être.")
+                Text("L'eau, un allié essentiel pour votre bien-être.")
                     .font(.subheadline)
                     .italic()
                     .foregroundStyle(.secondary)
@@ -97,18 +91,12 @@ struct SettingNavigation: View {
                     withAnimation { hasSeenIntro = true }
                 }) {
                     Label("Ignorer", systemImage: "arrowshape.turn.up.left")
-                        .foregroundStyle(Color("ForegroundColorForTheText"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
-                        .padding()
                 }
-                .background {
-                    ZStack{
-                        RoundedRectangle(cornerRadius: 26, style: .continuous)
-                            .fill(Color("TextBackground"))
-                            
-                    }
-                }
+                .buttonStyle(.glassProminent)
+                .tint(Theme.water)
+                .controlSize(.large)
                 .padding(.horizontal)
             }
             Spacer()
@@ -125,7 +113,7 @@ struct SettingNavigation: View {
                 }
             } label: {
                 Image(systemName: "info.circle")
-                    .foregroundStyle(Color("TextBackground"))
+                    .foregroundStyle(.primary)
                     .onAppear{
                         openIndicator = true
                     }
@@ -153,7 +141,7 @@ struct MoreInfoSheet: View {
                         Text(content)
                             .font(.body)
                             .multilineTextAlignment(.leading)
-                            .foregroundStyle(Color("TextBackground"))
+                            .foregroundStyle(.primary)
                             .padding()
                     }
                     .padding(.top)

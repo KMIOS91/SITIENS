@@ -5,7 +5,6 @@
 //  Created by Modibo on 07/04/2025.
 //
 import SwiftUI
-import Playgrounds
 
 struct InformationView: View {
     @Binding var hasSeenIntro: Bool
@@ -30,12 +29,7 @@ struct ValueNavigationLink :View {
     
     var body: some View {
         ZStack{
-            LinearGradient(
-                gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            AppBackground()
             
             if verticalSizeClass == .compact {
                 ScrollView {
@@ -96,7 +90,7 @@ struct ValueNavigationLink :View {
                 }
             } label: {
                 Image(systemName: "info.circle")
-                    .foregroundStyle(Color("TextBackground"))
+                    .foregroundStyle(.primary)
             }
             .accessibilityLabel("Ouvrir la fiche d’information")
         }
@@ -125,16 +119,12 @@ struct ValueNavigationLink :View {
                     withAnimation {hasSeenIntro = true }
                 }) {
                     Label("Ignorer", systemImage: "arrowshape.turn.up.left")
-                        .foregroundStyle(Color("ForegroundColorForTheText"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
-                        .padding()
                 }
-                
-                .background {
-                        RoundedRectangle(cornerRadius: 26, style: .continuous)
-                            .fill(Color("TextBackground"))
-                }
+                .buttonStyle(.glassProminent)
+                .tint(Theme.water)
+                .controlSize(.large)
                 .scaleEffect(isPressed ? 0.95 : 1.0)
                 .animation(.spring(), value: isPressed)
                 .accessibilityLabel("Ignorer l'introduction")
@@ -184,11 +174,11 @@ struct InfoSection: View {
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundStyle(Color("TextBackground"))
+                .foregroundStyle(.primary)
             
             Text(text)
                 .font(.body)
-                .foregroundStyle(Color("TextBackground"))
+                .foregroundStyle(.primary)
         }
     }
 }

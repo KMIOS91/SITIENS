@@ -6,13 +6,27 @@
 //
 
 import SwiftUI
-import CoreData
-import Combine
 
 @main
 struct SITIENSApp: App {
-    @State var showMainApp: Bool = false
-    @State private var hydrationActivationViewModel = HydrationActivationViewModel()
+    // Mémorisé : l'introduction ne s'affiche qu'au premier lancement.
+    @AppStorage("hasSeenIntro") private var showMainApp: Bool = false
+    @State private var hydrationActivationViewModel: HydrationActivationViewModel
+    @State private var hydrationTimer: HydrationTimer
+    @State private var historyViewModel: HistoryViewModel
+    @State private var waterTracker: WaterTracker
+
+    init() {
+        // Un seul service audio/notifications, partagé : le son lancé par le minuteur
+        // peut ainsi être arrêté depuis n'importe quel écran.
+        let hub = DataHistoryHub()
+        _hydrationActivationViewModel = State(initialValue: HydrationActivationViewModel(hydrationProtocol: hub))
+        _hydrationTimer = State(initialValue: HydrationTimer(hydration: hub))
+
+        let history = HistoryViewModel()
+        _historyViewModel = State(initialValue: history)
+        _waterTracker = State(initialValue: WaterTracker(goals: history, widget: SharedWidgetPublisher()))
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -21,13 +35,13 @@ struct SITIENSApp: App {
                     TabView {
                         
                         Tab("Chronomètre", systemImage : "stopwatch") {
-                            Chronograph(hydrationActivationViewModel: hydrationActivationViewModel)
+                            Chronograph(timer: hydrationTimer, hydrationActivationViewModel: hydrationActivationViewModel)
                                 .environment(hydrationActivationViewModel)
                                 .transition(.opacity)
                         }
                         
                         Tab("Hydratation", systemImage: "drop.fill") {
-                            WaterQuantityView(historyViewModel: HistoryViewModel())
+                            WaterQuantityView(tracker: waterTracker, historyViewModel: historyViewModel)
                                 .transition(.opacity)
                         }
                     }
@@ -40,7 +54,7 @@ struct SITIENSApp: App {
                                 .transition(.opacity)
                         }
                         
-                        Tab("Hydratation", systemImage: "drop.fill") {
+                        Tab("Informations", systemImage: "info.circle") {
                             InformationView(hasSeenIntro: $showMainApp)
                                 .transition(.opacity)
                         }

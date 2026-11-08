@@ -196,9 +196,21 @@ struct HydrationActivationViewModelTests {
         let mock = MocksHydradationActivation()
         let hydrationActivationViewModel = HydrationActivationViewModel(hydrationProtocol: mock)
         //When
-        hydrationActivationViewModel.notification()
+        hydrationActivationViewModel.scheduleNotification(in: 600)
         //Then
         #expect(mock.messageError.isEmpty == true)
+        #expect(mock.scheduledSeconds == 600)
+    }
+    
+    @Test func WhenNotificationIsCancelled() async throws {
+        //Given
+        let mock = MocksHydradationActivation()
+        let hydrationActivationViewModel = HydrationActivationViewModel(hydrationProtocol: mock)
+        hydrationActivationViewModel.scheduleNotification(in: 600)
+        //When
+        hydrationActivationViewModel.cancelNotification()
+        //Then
+        #expect(mock.scheduledSeconds == nil)
     }
     
     @Test func WhenNotificationThrowError() async throws {
@@ -207,8 +219,9 @@ struct HydrationActivationViewModelTests {
         let hydrationActivationViewModel = HydrationActivationViewModel(hydrationProtocol: mock)
         mock.throwError = true
         //When
-        hydrationActivationViewModel.notification()
+        hydrationActivationViewModel.scheduleNotification(in: 600)
         //Then
         #expect(mock.messageError == "Impossible for send notification")
+        #expect(mock.scheduledSeconds == nil)
     }
 }
