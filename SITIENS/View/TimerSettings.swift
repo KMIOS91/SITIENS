@@ -10,110 +10,100 @@ import UIKit
 import AVFAudio
 import Combine
 
+/// Réglages du minuteur : durée et son de fin.
 struct TimerSettings: View {
-    @State var sound : [String] = ["asphalt-sizzle","clover-feast","fresh-breeze","alone","kugelsicher-by-tremoxbeatz","gardens-stylish-chill","future-design","lofi-effect","lofi-sample-if-i-cant-have-you","mystical-music","music-box","meditation-music-sound-bite","ringtone","cool-guitar-loop","basique"]
-    @State var hour : [Int] = [600,3600,7200,5400,1800]
+    /// Nom du fichier du son choisi (voir `AlarmSound`).
     @Binding var selectedItems : String
+    /// Durée choisie, en secondes. Appliquée au minuteur seulement à la validation.
     @Binding var selectedHour : Int
     @Environment(\.dismiss) var dismiss
     @Bindable var hydrationActivationViewModel : HydrationActivationViewModel
-    @AppStorage("hour",store: .standard) var timerhour : Int = 0
+    /// Appelé par « Valider » : c'est l'écran appelant qui applique la durée.
+    var onValidate: () -> Void = {}
+    @State var isPlaying : Bool = false
+
+    // États conservés pour le travail en cours sur la barre de lecture (Rectangle ci-dessous).
     @State private var audio : AVAudioPlayer?
-    @State  var isPlaying : Bool = false
     @State private var cancellable: AnyCancellable?
     @State private var navigationTitle : String = "Configuration"
     @State private var slide : Double = 0.0
     @State private var activeSlide : Bool = false
     @Environment(\.scenePhase) var scenePhase
     @State private var updateSlide : Double = 0.0
-    
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var progress: Double = 0.0
     @State private var isUserScrubbing = false
-    
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppBackground()
+            Form {
+                Section {
+                    DurationPresets(selection: $selectedHour)
 
-                ScrollView {
-                    VStack (spacing: 30){
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Sélectionner le temps")
-                                .font(.headline)
-                                .padding(.horizontal, 4)
-                            
-                            // Le style `.navigationLink` affiche déjà la valeur choisie et le chevron.
-                            Picker(selection: $selectedHour, label: Text("Durée")) {
-                                ForEach(hour, id: \.self) { value in
-                                    Text(hydrationActivationViewModel.formatHour(value))
-                                        .lineLimit(1)
-                                }
-                            }
-                            .pickerStyle(.navigationLink)
-                            .padding()
-                            .background(Color.primary.opacity(0.06), in: .rect(cornerRadius: 12))
-                            .accessibilityLabel("Sélection du temps")
-                            .accessibilityHint("Appuyez pour choisir une durée")
+                    Stepper {
+                        LabeledContent("Autre durée") {
+                            Text(selectedHour == 0 ? "—" : TimerDurationOptions.shortLabel(selectedHour))
+                                .monospacedDigit()
                         }
-                        .padding()
-                        // Carte en verre iOS 26 (Liquid Glass)
-                        .glassEffect(.regular, in: .rect(cornerRadius: 20))
-                        
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Sélectionner l'audio")
-                                .font(.headline)
-                                .padding(.horizontal, 4)
-                            
-                            Picker(selection: $selectedItems, label: Text("Son")) {
-                                ForEach(sound, id: \.self) { item in
-                                    Text(item)
-                                }
-                            }
-                            .pickerStyle(.navigationLink)
-                            .padding()
-                            .background(Color.primary.opacity(0.06), in: .rect(cornerRadius: 12))
-                            .accessibilityLabel("Sélectionner un son")
-                            .accessibilityHint("Double-cliquez pour choisir un audio")
-                        }
-                        .padding()
-                        // Carte en verre iOS 26 (Liquid Glass)
-                        .glassEffect(.regular, in: .rect(cornerRadius: 20))
-                        
-                        CustomButton(
-                            isPlaying: $isPlaying,
-                            hydrationActivationViewModel:
-                            hydrationActivationViewModel,
-                            selectedItems: $selectedItems,
-                            type: "LoadingSong",
-                            selectedHour: $selectedHour,
-                            updateSlide : $updateSlide
-                        )
-                        
-                        // Dans TimerSettings
-                        Rectangle()
-                            .trim(from: 0, to: 0.8)
-                            .frame(height: 1)
-                            .gesture(DragGesture())
-//                            .onChange(of: <#T##Equatable#>) { oldValue, newValue in
-//                                <#code#>
-//                            }
+                    } onIncrement: {
+                        selectedHour = TimerDurationOptions.increment(selectedHour)
+                    } onDecrement: {
+                        selectedHour = TimerDurationOptions.decrement(selectedHour)
                     }
-                    .padding()
+                    .accessibilityValue(selectedHour == 0 ? "Aucune" : hydrationActivationViewModel.formatHour(selectedHour))
+                } header: {
+                    Text("Durée")
+                } footer: {
+                    if selectedHour > 0 {
+                        Text("SITIENS vous rappellera de boire dans \(hydrationActivationViewModel.formatHour(selectedHour)).")
+                    }
                 }
-                .navigationTitle("Paramètres")
+
+                Section("Son de fin") {
+                    Picker("Son", selection: $selectedItems) {
+                        if selectedItems.isEmpty {
+                            Text("Sélectionner").tag("")
+                        }
+                        ForEach(AlarmSound.allCases) { sound in
+                            Text(sound.title).tag(sound.rawValue)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
+                    // Changer de son pendant l'écoute : on arrête l'ancien.
+                    .onChange(of: selectedItems) {
+                        hydrationActivationViewModel.stopPlaying()
+                        isPlaying = false
+                    }
+
+                    SoundPreviewButton(
+                        isPlaying: $isPlaying,
+                        hydrationActivationViewModel: hydrationActivationViewModel,
+                        selectedItems: selectedItems
+                    )
+
+                    // Dans TimerSettings
+                    Rectangle()
+                        .trim(from: 0, to: 0.8)
+                        .frame(height: 1)
+                        .gesture(DragGesture())
+                    //                            .onChange(of: T##Equatable) { oldValue, newValue in
+                    //
+//                            }
+                }
             }
-            // Le bouton reste en bas de l'écran, posé sur le dégradé.
-            .safeAreaInset(edge: .bottom) {
-                CustomButton(
-                    isPlaying: $isPlaying,
-                    hydrationActivationViewModel:
-                    hydrationActivationViewModel,
-                    selectedItems: $selectedItems,
-                    type: "Validate",
-                    selectedHour: $selectedHour,
-                    updateSlide : $updateSlide
-                )
+            .scrollContentBackground(.hidden)
+            .background { AppBackground() }
+            .navigationTitle("Minuteur")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Valider", systemImage: "checkmark") {
+                        hydrationActivationViewModel.stopPlaying()
+                        onValidate()
+                        dismiss()
+                    }
+                    .disabled(selectedHour == 0 || selectedItems.isEmpty)
+                }
             }
         }
         .onDisappear{
@@ -123,87 +113,68 @@ struct TimerSettings: View {
     }
 }
 
+/// Raccourcis de durée : la durée choisie est mise en avant.
+private struct DurationPresets: View {
+    @Binding var selection: Int
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 76), spacing: 10)], spacing: 10) {
+            ForEach(TimerDurationOptions.presets, id: \.self) { seconds in
+                presetButton(seconds)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    // Les deux styles de verre sont des types différents : d'où le `if` dans un @ViewBuilder.
+    @ViewBuilder
+    private func presetButton(_ seconds: Int) -> some View {
+        let label = Text(TimerDurationOptions.shortLabel(seconds))
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .frame(maxWidth: .infinity)
+
+        if selection == seconds {
+            Button { selection = seconds } label: { label }
+                .buttonStyle(.glassProminent)
+                .tint(Theme.water)
+                .accessibilityAddTraits(.isSelected)
+        } else {
+            Button { selection = seconds } label: { label }
+                .buttonStyle(.glass)
+        }
+    }
+}
+
+/// Écoute du son choisi avant de valider.
+struct SoundPreviewButton: View {
+    @Binding var isPlaying : Bool
+    @Bindable var hydrationActivationViewModel : HydrationActivationViewModel
+    let selectedItems : String
+
+    var body: some View {
+        Button {
+            isPlaying.toggle()
+            if isPlaying {
+                hydrationActivationViewModel.playSound(sound: selectedItems)
+            } else {
+                hydrationActivationViewModel.stopPlaying()
+            }
+        } label: {
+            Label(isPlaying ? "Arrêter l'écoute" : "Écouter",
+                  systemImage: isPlaying ? "stop.circle.fill" : "play.circle.fill")
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .disabled(selectedItems.isEmpty)
+    }
+}
+
 #Preview {
-    @Previewable @State var selectedItems : String = ""
-    @Previewable @State var selectedHour : Int = 0
+    @Previewable @State var selectedItems : String = "fresh-breeze"
+    @Previewable @State var selectedHour : Int = 2700
     TimerSettings(
         selectedItems: $selectedItems,
         selectedHour: $selectedHour,
         hydrationActivationViewModel: HydrationActivationViewModel()
     )
-   
 }
-
-struct CustomButton: View {
-    @Binding var isPlaying : Bool
-    @Bindable var hydrationActivationViewModel : HydrationActivationViewModel
-    @Binding var selectedItems : String
-    var type : String
-    @AppStorage("hour",store: .standard) var timerhour : Int = 0
-    @Binding var selectedHour : Int
-    @Environment(\.dismiss) var dismiss
-    @Binding var updateSlide : Double
-    
-//    func completed() -> Bool {
-//        return progressWater() == 1
-//    }
-//    
-//    func progressWater() -> CGFloat {
-//        return  CGFloat(timeInterval) / CGFloat(timerhour)
-//    }
-    
-    var body: some View {
-        if type == "LoadingSong" {
-            Button {
-                withAnimation {
-                    isPlaying.toggle()
-                    
-                    if isPlaying {
-                        hydrationActivationViewModel.playSound(sound: selectedItems)
-                        
-                    }else{
-                        hydrationActivationViewModel.stopPlaying()
-                    }
-                }
-                
-            } label: {
-                Image(systemName:isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                    .resizable()
-                    .frame(width: 100,height: 100)
-                    .padding()
-                    .scaleEffect(isPlaying ? 1.1 : 1.0)
-                    .foregroundStyle(.black)
-            }
-           
-        }else{
-            Button {	
-                let generator = UIImpactFeedbackGenerator(style: .medium)
-                generator.impactOccurred()
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    timerhour = selectedHour
-                    hydrationActivationViewModel.stopPlaying()
-                    if selectedHour != 0  {
-                        dismiss()
-                    }
-                }
-            } label: {
-                Text("Valider")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.glassProminent)
-            .tint(Theme.water)
-            .controlSize(.large)
-            .disabled(test() == true)
-            .padding()
-        }
-    }
-    
-    func test () -> Bool {
-        if selectedHour == 0 || selectedItems.isEmpty {
-            return true
-        }
-        return false
-    }
-}
-

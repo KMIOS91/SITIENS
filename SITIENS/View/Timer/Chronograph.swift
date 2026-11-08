@@ -11,8 +11,6 @@ struct Chronograph: View {
     @Bindable var timer: HydrationTimer
     @Bindable var hydrationActivationViewModel: HydrationActivationViewModel
 
-    /// Durée enregistrée par le bouton « Valider » des réglages.
-    @AppStorage(HydrationTimer.Keys.duration) private var validatedDuration: Int = 0
     /// Durée sélectionnée dans les réglages, pas encore validée.
     @State private var pendingDuration = 0
     @State private var isSettingsPresented = false
@@ -57,11 +55,11 @@ struct Chronograph: View {
                 TimerSettings(
                     selectedItems: $timer.sound,
                     selectedHour: $pendingDuration,
-                    hydrationActivationViewModel: hydrationActivationViewModel
+                    hydrationActivationViewModel: hydrationActivationViewModel,
+                    // Appliqué à chaque validation, même si la durée n'a pas changé :
+                    // valider repart toujours d'un minuteur plein.
+                    onValidate: { timer.setDuration(pendingDuration) }
                 )
-            }
-            .onChange(of: validatedDuration) {
-                timer.setDuration(validatedDuration)
             }
         }
     }
