@@ -53,7 +53,6 @@ struct Start_timer: View {
     @Binding var elapseBeforPause: Int
     @Binding var selectedItems: String
     var role: TimerButtonRole
-    @State private var animeFrame: CGFloat = 1.0
     
     var body: some View {
         
@@ -81,15 +80,6 @@ struct Start_timer: View {
                         
                     } label: {
                         ZStack {
-                            Circle()
-                                .fill(.gray)
-                                .frame(width: 13, height: 13)
-                                .shadow(radius: 10)
-                            
-                            Circle()
-                                .fill(.white)
-                                .frame(width: 125, height: 125)
-                                .shadow(radius: 10)
                             
                             Circle()
                                 .fill(.gray)
@@ -131,34 +121,20 @@ struct Start_timer: View {
                                 .frame(width: 13, height: 13)
                                 .shadow(radius: 10)
                             
-                            Circle()
-                                .fill(.white)
-                                .frame(width: 125, height: 125)
-                                .shadow(radius: 10)
+                         
                             
                             if timerState == .running {
+                                // Pulsation : alterne en boucle entre l'échelle 1.0 et 1.5.
+                                // phaseAnimator repart de zéro à chaque apparition du cercle.
                                 Circle()
                                     .fill(.red)
-                                    .scaleEffect(animeFrame)
-                                    .animation(
-                                        .easeIn(
-                                            duration: 2)
-                                        .repeatForever(),
-                                        
-                                        value: animeFrame
-                                    )
-                                    .onAppear{
-                                        withAnimation {
-                                            animeFrame = 1.5
-                                        }
-                                    }
-                                    .frame(width:  120, height:  120)
+                                    .frame(width: 120, height: 120)
                                     .shadow(radius: 10)
-                                    .onChange(of: animeFrame, {
-                                        withAnimation {
-                                            animeFrame = 1.0
-                                        }
-                                    })
+                                    .phaseAnimator([1.0, 1.5]) { content, scale in
+                                        content.scaleEffect(scale)
+                                    } animation: { _ in
+                                        .easeInOut(duration: 1)
+                                    }
                             }
                             
                             Circle()
