@@ -7,7 +7,7 @@
 
 /// Récipient choisi dans les réglages : chaque appui sur « + » ajoute sa contenance.
 ///
-/// Comme pour `HydrationProfile`, la `rawValue` reprend les chaînes déjà enregistrées.
+/// La `rawValue` reprend les chaînes enregistrées par les versions précédentes.
 enum WaterContainer: String, CaseIterable, Identifiable {
     case small = "Petit – 200 ml"
     case medium = "Moyen – 300 ml"

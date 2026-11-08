@@ -7,90 +7,109 @@
 
 import SwiftUI
 
-/// Choix du profil et du récipient pour le suivi d'hydratation.
+/// Choix du profil, du récipient et des besoins supplémentaires pour le suivi d'hydratation.
 struct UserSettingsView: View {
     @Binding var profil: HydrationProfile?
     @Binding var glace: WaterContainer?
+    @Binding var extraNeeds: Set<HydrationExtraNeed>
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppBackground()
-
-                VStack(spacing: 30) {
-                    settingsCard("Sélectionner un profil") {
-                        OptionPicker(title: "Profil", selection: $profil, options: HydrationProfile.allCases, label: \.name)
+            Form {
+                Section {
+                    // Style `.inline` : les options sont listées directement, avec une coche.
+                    Picker("Profil", selection: $profil) {
+                        ForEach(HydrationProfile.allCases) { profile in
+                            Text(profile.name).tag(Optional(profile))
+                        }
                     }
-
-                    settingsCard("Sélectionner un récipient") {
-                        OptionPicker(title: "Récipient", selection: $glace, options: WaterContainer.allCases, label: \.name)
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                } header: {
+                    Text("Profil")
+                } footer: {
+                    if let profil {
+                        Text("Objectif : \(liters(profil.dailyLiters)) à boire par jour.")
                     }
-
-                    Spacer()
-
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Valider")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.glassProminent)
-                    .tint(Theme.water)
-                    .controlSize(.large)
-                    .disabled(profil == nil || glace == nil)
-                    .padding()
-                    .accessibilityHint("Valide vos préférences de profil et de récipient")
                 }
-                .padding()
-                .navigationTitle("Paramètres")
+
+                Section("Récipient") {
+                    Picker("Récipient", selection: $glace) {
+                        ForEach(WaterContainer.allCases) { container in
+                            Label {
+                                Text(container.name)
+                            } icon: {
+                                Image(container.imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                            .tag(Optional(container))
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
+
+                Section {
+                    ForEach(HydrationExtraNeed.allCases) { need in
+                        Toggle(isOn: binding(for: need)) {
+                            Text(need.name)
+                            Text(need.detail)
+                        }
+                    }
+                } header: {
+                    Text("Aujourd'hui")
+                } footer: {
+                    Text("Chaque besoin ajoute \(liters(0.5)) à l'objectif.")
+                }
+
+                Section {
+                } footer: {
+                    Text("""
+                    Repères de l'EFSA (Autorité européenne de sécurité des aliments) pour une personne \
+                    en bonne santé, par température et activité modérées. Avant 6 mois, un bébé ne boit \
+                    que du lait. En cas de maladie (cœur, reins…) ou de traitement, demandez conseil à \
+                    un professionnel de santé : certaines situations demandent au contraire de limiter l'eau.
+                    """)
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background { AppBackground() }
+            .navigationTitle("Profil")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Valider", systemImage: "checkmark") {
+                        dismiss()
+                    }
+                    .disabled(profil == nil || glace == nil)
+                }
             }
         }
     }
 
-    /// Carte en verre (Liquid Glass) avec un titre.
-    private func settingsCard(_ title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.headline)
-            content()
+    /// Un interrupteur par besoin : coché si le besoin fait partie de l'ensemble.
+    private func binding(for need: HydrationExtraNeed) -> Binding<Bool> {
+        Binding {
+            extraNeeds.contains(need)
+        } set: { isOn in
+            if isOn {
+                extraNeeds.insert(need)
+            } else {
+                extraNeeds.remove(need)
+            }
         }
-        .padding()
-        .glassEffect(.regular, in: .rect(cornerRadius: 20))
     }
-}
 
-/// Picker générique pour une valeur optionnelle : fonctionne avec n'importe quelle liste d'options.
-struct OptionPicker<Option: Hashable>: View {
-    /// Nom affiché à gauche et lu par VoiceOver (« Profil », « Récipient »).
-    let title: String
-    @Binding var selection: Option?
-    let options: [Option]
-    let label: (Option) -> String
-
-    var body: some View {
-        // Avec le style `.navigationLink`, le Picker affiche lui-même la valeur choisie et le chevron.
-        Picker(selection: $selection, label: Text(title)) {
-            // Chaque valeur du Picker doit correspondre à un `tag` : on en prévoit un pour « rien ».
-            if selection == nil {
-                Text("Sélectionner").tag(Option?.none)
-            }
-            ForEach(options, id: \.self) { option in
-                Text(label(option))
-                    .lineLimit(1)
-                    .tag(Option?.some(option))
-            }
-        }
-        .pickerStyle(.navigationLink)
-        .padding()
-        .background(Color.primary.opacity(0.06), in: .rect(cornerRadius: 12))
-        .accessibilityHint("Appuyez pour choisir")
+    private func liters(_ value: Double) -> String {
+        "\(value.formatted(.number.precision(.fractionLength(1)))) L"
     }
 }
 
 #Preview {
-    @Previewable @State var profile: HydrationProfile? = nil
+    @Previewable @State var profile: HydrationProfile? = .woman
     @Previewable @State var container: WaterContainer? = .medium
-    UserSettingsView(profil: $profile, glace: $container)
+    @Previewable @State var needs: Set<HydrationExtraNeed> = [.heat]
+    UserSettingsView(profil: $profile, glace: $container, extraNeeds: $needs)
 }

@@ -15,6 +15,7 @@ final class WaterTracker {
     enum Keys {
         static let profile = "profilType"
         static let container = "glace"
+        static let extraNeeds = "extraNeeds"
         static let glassesToday = "glassesToday"
         static let lastTrackingDate = "lastTrackingDate"
         /// Ancienne sauvegarde (fraction de l'objectif), lue une seule fois pour migrer.
@@ -32,6 +33,14 @@ final class WaterTracker {
     /// Récipient choisi (`nil` tant qu'aucun n'est choisi).
     var container: WaterContainer? {
         didSet { defaults.set(container?.rawValue, forKey: Keys.container) }
+    }
+
+    /// Besoins supplémentaires du jour (sport, chaleur), qui s'ajoutent à l'objectif du profil.
+    var extraNeeds: Set<HydrationExtraNeed> {
+        didSet {
+            defaults.set(extraNeeds.map(\.rawValue).sorted(), forKey: Keys.extraNeeds)
+            publishToWidget()
+        }
     }
 
     /// Nombre de verres bus aujourd'hui.
@@ -67,8 +76,9 @@ final class WaterTracker {
         self.calendar = calendar
 
         // Une valeur inconnue (ou absente) donne `nil` : l'utilisateur devra choisir à nouveau.
-        profile = defaults.string(forKey: Keys.profile).flatMap(HydrationProfile.init(rawValue:))
+        profile = defaults.string(forKey: Keys.profile).flatMap(HydrationProfile.init(storedValue:))
         container = defaults.string(forKey: Keys.container).flatMap(WaterContainer.init(rawValue:))
+        extraNeeds = Set((defaults.stringArray(forKey: Keys.extraNeeds) ?? []).compactMap(HydrationExtraNeed.init(rawValue:)))
         lastTrackingDate = defaults.double(forKey: Keys.lastTrackingDate)
         glassesToday = 0
         glassesToday = savedGlasses()
@@ -76,9 +86,10 @@ final class WaterTracker {
 
     // MARK: - Calculs
 
-    /// Objectif du jour en litres, selon le profil (0 sans profil).
+    /// Objectif du jour en litres : celui du profil, plus les besoins supplémentaires (0 sans profil).
     var targetLiters: Double {
-        profile?.dailyLiters ?? 0
+        guard let profile else { return 0 }
+        return profile.dailyLiters + extraNeeds.reduce(0) { $0 + $1.extraLiters }
     }
 
     /// Contenance du récipient en millilitres (0 sans récipient).
@@ -115,7 +126,7 @@ final class WaterTracker {
         isConfigured && !isGoalReached
     }
 
-    /// Le profil et le récipient ne changent pas en cours de journée : les verres déjà bus en dépendent.
+    /// Les réglages ne changent pas une fois la journée commencée : les verres déjà bus en dépendent.
     var canChangeSettings: Bool {
         glassesToday == 0
     }

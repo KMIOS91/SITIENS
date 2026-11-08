@@ -42,7 +42,7 @@ struct HydrationDashboard: View {
         .navigationTitle("Hydratation")
         .toolbar { toolbarContent }
         .sheet(isPresented: $isSettingsPresented) {
-            UserSettingsView(profil: $tracker.profile, glace: $tracker.container)
+            UserSettingsView(profil: $tracker.profile, glace: $tracker.container, extraNeeds: $tracker.extraNeeds)
         }
         .onAppear { tracker.refresh() }
         .onChange(of: scenePhase) {

@@ -13,28 +13,33 @@ struct HydrationProfileTests {
 
     // MARK: - Profils
 
+    /// Valeurs de l'EFSA (eau totale) et part à boire (80 %, arrondie au décilitre).
     @Test(arguments: [
-        (HydrationProfile.infant, 0.7),
-        (.pregnantWoman, 2.5),
-        (.elderly, 2),
-        (.athlete, 3),
-        (.youth, 2.5),
-        (.hotEnvironmentWorker, 3),
-        (.chronicIllness, 2),
-        (.overweight, 3),
-        (.highAltitude, 3),
-        (.medication, 2),
+        (HydrationProfile.woman, 2.0, 1.6),
+        (.man, 2.5, 2.0),
+        (.pregnant, 2.3, 1.8),
+        (.breastfeeding, 2.7, 2.2),
+        (.girl9to13, 1.9, 1.5),
+        (.boy9to13, 2.1, 1.7),
+        (.child4to8, 1.6, 1.3),
     ])
-    func dailyLiters(profile: HydrationProfile, liters: Double) {
-        #expect(profile.dailyLiters == liters)
+    func dailyLiters(profile: HydrationProfile, totalWater: Double, toDrink: Double) {
+        #expect(profile.totalWaterLiters == totalWater)
+        #expect(profile.dailyLiters == toDrink)
     }
 
-    /// Les chaînes enregistrées par les versions précédentes doivent toujours être reconnues.
-    @Test func savedNamesAreStillRecognized() {
-        #expect(HydrationProfile(rawValue: "Sportifs") == .athlete)
-        #expect(HydrationProfile(rawValue: "Personnes âgées") == .elderly)
+    @Test func storedValuesAreRecognized() {
+        #expect(HydrationProfile(storedValue: "woman") == .woman)
+        // Ancien nom avec un équivalent direct.
+        #expect(HydrationProfile(storedValue: "Femmes enceintes") == .pregnant)
+        // Anciens profils retirés : il faudra en choisir un nouveau.
+        #expect(HydrationProfile(storedValue: "Sportifs") == nil)
+        #expect(HydrationProfile(storedValue: "Nourrissons") == nil)
         #expect(WaterContainer(rawValue: "Moyen – 300 ml") == .medium)
-        #expect(HydrationProfile(rawValue: "FakeName") == nil)
+    }
+
+    @Test func eachExtraNeedAddsHalfALiter() {
+        #expect(HydrationExtraNeed.allCases.allSatisfy { $0.extraLiters == 0.5 })
     }
 
     // MARK: - Récipients

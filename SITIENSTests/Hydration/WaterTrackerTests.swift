@@ -28,7 +28,11 @@ struct WaterTrackerTests {
 
     final class WidgetSpy: HydrationWidgetPublishing {
         var lastLiters: Double?
-        func publish(liters: Double, targetLiters: Double) { lastLiters = liters }
+        var lastTarget: Double?
+        func publish(liters: Double, targetLiters: Double) {
+            lastLiters = liters
+            lastTarget = targetLiters
+        }
     }
 
     var calendar: Calendar {
@@ -47,10 +51,10 @@ struct WaterTrackerTests {
         WaterTracker(goals: goals, widget: widget, defaults: defaults, now: { [clock] in clock.now }, calendar: calendar)
     }
 
-    /// Sportif (objectif 3 L) avec un grand verre de 500 ml : 6 verres par jour.
+    /// Homme adulte (2,0 L à boire) avec un grand verre de 500 ml : 4 verres par jour.
     func makeConfiguredTracker() -> WaterTracker {
         let tracker = makeTracker()
-        tracker.profile = .athlete
+        tracker.profile = .man
         tracker.container = .large
         return tracker
     }
@@ -67,15 +71,15 @@ struct WaterTrackerTests {
 
     @Test func goalIsExpressedInGlasses() {
         let tracker = makeConfiguredTracker()
-        #expect(tracker.targetLiters == 3)
-        #expect(tracker.glassesPerDay == 6)
+        #expect(tracker.targetLiters == 2)
+        #expect(tracker.glassesPerDay == 4)
     }
 
     @Test func glassCountIsRoundedUp() {
         let tracker = makeTracker()
-        tracker.profile = .infant       // 0,7 L
-        tracker.container = .small      // 3,5 verres → 4
-        #expect(tracker.glassesPerDay == 4)
+        tracker.profile = .woman        // 1,6 L
+        tracker.container = .medium     // 5,3 verres → 6
+        #expect(tracker.glassesPerDay == 6)
     }
 
     // MARK: - Ajout de verres
@@ -85,14 +89,14 @@ struct WaterTrackerTests {
         tracker.addGlass()
         tracker.addGlass()
         #expect(tracker.drunkLiters == 1)
-        #expect(abs(tracker.progress - 1.0 / 3) < 0.0001)
+        #expect(tracker.progress == 0.5)
         #expect(widget.lastLiters == 1)
         #expect(!tracker.canChangeSettings)
     }
 
     @Test func goalIsReachedExactlyAfterTheLastGlass() {
         let tracker = makeConfiguredTracker()
-        for _ in 1...6 { tracker.addGlass() }
+        for _ in 1...4 { tracker.addGlass() }
         #expect(tracker.isGoalReached)
         #expect(tracker.progress == 1)
         #expect(!tracker.canAddGlass)
@@ -102,17 +106,16 @@ struct WaterTrackerTests {
         let tracker = makeConfiguredTracker()
         for _ in 1...10 { tracker.addGlass() }
         #expect(goals.recorded.count == 1)
-        #expect(goals.recorded.first?.profile == "Sportifs")
-        #expect(goals.recorded.first?.liters == 3)
+        #expect(goals.recorded.first?.profile == "Homme (14 ans et plus)")
+        #expect(goals.recorded.first?.liters == 2)
     }
 
     @Test func litersAreCappedAtTheGoal() {
         let tracker = makeTracker()
-        tracker.profile = .infant       // 0,7 L
-        tracker.container = .large      // 2 verres = 1 L
-        tracker.addGlass()
-        tracker.addGlass()
-        #expect(tracker.drunkLiters == 0.7)
+        tracker.profile = .woman        // 1,6 L
+        tracker.container = .large      // 4 verres = 2 L
+        for _ in 1...4 { tracker.addGlass() }
+        #expect(tracker.drunkLiters == 1.6)
         #expect(tracker.progress == 1)
     }
 
@@ -128,11 +131,11 @@ struct WaterTrackerTests {
 
     @Test func relaunchKeepsTheDayWithoutRecordingAgain() {
         let tracker = makeConfiguredTracker()
-        for _ in 1...6 { tracker.addGlass() }
+        for _ in 1...4 { tracker.addGlass() }
 
         let relaunched = makeTracker()
         relaunched.refresh()
-        #expect(relaunched.glassesToday == 6)
+        #expect(relaunched.glassesToday == 4)
         #expect(relaunched.isGoalReached)
         #expect(goals.recorded.count == 1)
     }
@@ -144,7 +147,7 @@ struct WaterTrackerTests {
         clock.advance(byHours: 24)
         tracker.refresh()
         #expect(tracker.glassesToday == 0)
-        #expect(tracker.profile == .athlete)
+        #expect(tracker.profile == .man)
     }
 
     @Test func laterTheSameDayKeepsTheGlasses() {
@@ -164,13 +167,35 @@ struct WaterTrackerTests {
     }
 
     @Test func legacyProgressIsMigratedToGlasses() {
-        // Sauvegarde d'une ancienne version : 50 % de 3 L, en verres de 500 ml.
-        defaults.set("Sportifs", forKey: WaterTracker.Keys.profile)
+        // Sauvegarde d'une ancienne version : 50 % de 1,8 L (femme enceinte), en verres de 500 ml.
+        defaults.set("Femmes enceintes", forKey: WaterTracker.Keys.profile)
         defaults.set("Grand – 500 ml", forKey: WaterTracker.Keys.container)
         defaults.set(0.5, forKey: WaterTracker.Keys.legacyProgress)
 
         let tracker = makeTracker()
-        #expect(tracker.glassesToday == 3)
-        #expect(tracker.drunkLiters == 1.5)
+        #expect(tracker.profile == .pregnant)
+        #expect(tracker.glassesToday == 2)   // 0,9 L / 500 ml ≈ 1,8 → 2 verres
+        #expect(tracker.drunkLiters == 1)
+    }
+
+    @Test func oldProfilesWithoutEquivalentMustBeChosenAgain() {
+        defaults.set("Sportifs", forKey: WaterTracker.Keys.profile)
+        #expect(makeTracker().profile == nil)
+    }
+
+    // MARK: - Besoins supplémentaires
+
+    @Test func extraNeedsRaiseTheGoal() {
+        let tracker = makeConfiguredTracker()
+        tracker.extraNeeds = [.exercise, .heat]
+        #expect(tracker.targetLiters == 3)
+        #expect(tracker.glassesPerDay == 6)
+        #expect(widget.lastTarget == 3)
+    }
+
+    @Test func extraNeedsAreSaved() {
+        let tracker = makeConfiguredTracker()
+        tracker.extraNeeds = [.heat]
+        #expect(makeTracker().extraNeeds == [.heat])
     }
 }
