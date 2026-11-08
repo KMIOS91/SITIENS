@@ -11,8 +11,17 @@ import SwiftUI
 struct SITIENSApp: App {
     // Mémorisé : l'introduction ne s'affiche qu'au premier lancement.
     @AppStorage("hasSeenIntro") private var showMainApp: Bool = false
-    @State private var hydrationActivationViewModel = HydrationActivationViewModel()
+    @State private var hydrationActivationViewModel: HydrationActivationViewModel
+    @State private var hydrationTimer: HydrationTimer
     @State private var historyViewModel = HistoryViewModel()
+
+    init() {
+        // Un seul service audio/notifications, partagé : le son lancé par le minuteur
+        // peut ainsi être arrêté depuis n'importe quel écran.
+        let hub = DataHistoryHub()
+        _hydrationActivationViewModel = State(initialValue: HydrationActivationViewModel(hydrationProtocol: hub))
+        _hydrationTimer = State(initialValue: HydrationTimer(hydration: hub))
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -21,7 +30,7 @@ struct SITIENSApp: App {
                     TabView {
                         
                         Tab("Chronomètre", systemImage : "stopwatch") {
-                            Chronograph(hydrationActivationViewModel: hydrationActivationViewModel)
+                            Chronograph(timer: hydrationTimer, hydrationActivationViewModel: hydrationActivationViewModel)
                                 .environment(hydrationActivationViewModel)
                                 .transition(.opacity)
                         }
