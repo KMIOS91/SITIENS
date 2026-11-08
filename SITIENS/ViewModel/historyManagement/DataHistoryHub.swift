@@ -26,7 +26,17 @@ class DataHistoryHub : HydrationProtocol {
 
         do{
             let file = try AVAudioFile(forReading: url)
-            avAudioEngine.attach(avAudioPlayerNode)
+
+            // Le lecteur n'est attaché au moteur qu'une seule fois.
+            if avAudioPlayerNode.engine == nil {
+                avAudioEngine.attach(avAudioPlayerNode)
+            }
+
+            // Arrête un son éventuellement en cours et vide sa file d'attente,
+            // pour que deux fins de minuteur ne s'enchaînent pas.
+            // Le moteur est aussi arrêté : on ne modifie pas ses connexions pendant qu'il tourne.
+            avAudioPlayerNode.stop()
+            avAudioEngine.stop()
 
             // iOS 27 : la nouvelle API signale ses erreurs (throws) ; iOS 26 : l'ancienne.
             if #available(iOS 27, *) {
