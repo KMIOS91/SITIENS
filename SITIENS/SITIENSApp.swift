@@ -13,7 +13,8 @@ struct SITIENSApp: App {
     @AppStorage("hasSeenIntro") private var showMainApp: Bool = false
     @State private var hydrationActivationViewModel: HydrationActivationViewModel
     @State private var hydrationTimer: HydrationTimer
-    @State private var historyViewModel = HistoryViewModel()
+    @State private var historyViewModel: HistoryViewModel
+    @State private var waterTracker: WaterTracker
 
     init() {
         // Un seul service audio/notifications, partagé : le son lancé par le minuteur
@@ -21,6 +22,10 @@ struct SITIENSApp: App {
         let hub = DataHistoryHub()
         _hydrationActivationViewModel = State(initialValue: HydrationActivationViewModel(hydrationProtocol: hub))
         _hydrationTimer = State(initialValue: HydrationTimer(hydration: hub))
+
+        let history = HistoryViewModel()
+        _historyViewModel = State(initialValue: history)
+        _waterTracker = State(initialValue: WaterTracker(goals: history))
     }
     
     var body: some Scene {
@@ -36,7 +41,7 @@ struct SITIENSApp: App {
                         }
                         
                         Tab("Hydratation", systemImage: "drop.fill") {
-                            WaterQuantityView(historyViewModel: historyViewModel)
+                            WaterQuantityView(tracker: waterTracker, historyViewModel: historyViewModel)
                                 .transition(.opacity)
                         }
                     }
