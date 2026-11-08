@@ -20,12 +20,7 @@ struct UserSettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                AppBackground()
                 
                 VStack(spacing: 30) {
                     VStack (alignment: .leading, spacing: 12){
@@ -62,6 +57,7 @@ struct UserSettingsView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glassProminent)
+                    .tint(Theme.water)
                     .controlSize(.large)
                     .disabled(profil.isEmpty || glace.isEmpty)
                     .padding()
@@ -89,19 +85,9 @@ struct CustomPicker: View {
     @Binding var type : [String]
     
     var body: some View {
-        Picker(
-            selection: $name,
-            label:
-                HStack{
-                    Text(name.isEmpty ? "Sélectionner":name)
-                        .foregroundStyle(name.isEmpty ? .gray:.gray)
-                        .lineLimit(1)
-                    
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.gray)
-                }
-        ) {
+        // Avec le style `.navigationLink`, le Picker affiche lui-même la valeur choisie et le chevron :
+        // l'étiquette n'a besoin que du titre.
+        Picker(selection: $name, label: Text(title)) {
             ForEach(type,id: \.self) { profile in
                 Text(profile)
                     .lineLimit(1)

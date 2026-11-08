@@ -14,3 +14,15 @@ struct ManagementHistory: Identifiable {
     var date : String
     
 }
+
+extension ManagementHistory {
+    /// Copie une entrée Core Data en valeur simple, plus facile à afficher.
+    /// Les attributs Core Data sont optionnels : une valeur absente devient une chaîne vide.
+    init(_ history: History) {
+        self.init(
+            name: history.name ?? "",
+            quantity: history.quantity ?? "",
+            date: history.date ?? ""
+        )
+    }
+}

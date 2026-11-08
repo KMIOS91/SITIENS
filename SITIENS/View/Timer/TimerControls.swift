@@ -16,34 +16,19 @@ struct TimerControls: View {
 
     var body: some View {
         HStack(spacing: 32) {
-            Button(action: onReset) {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.title2.weight(.semibold))
-                    .frame(width: 56, height: 56)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .disabled(!state.canReset)
-            .accessibilityLabel("Réinitialiser")
-            .accessibilityHint("Remet le minuteur à sa durée de départ")
+            RoundIconButton(systemImage: "arrow.counterclockwise", action: onReset)
+                .disabled(!state.canReset)
+                .accessibilityLabel("Réinitialiser")
+                .accessibilityHint("Remet le minuteur à sa durée de départ")
 
-            Button(action: onToggle) {
-                Image(systemName: state.primarySymbol)
-                    .font(.system(size: 32, weight: .semibold))
-                    .frame(width: 84, height: 84)
-                    // Le symbole se transforme (lecture ↔ pause) au lieu d'être remplacé d'un coup.
-                    .contentTransition(.symbolEffect(.replace))
-            }
-            .buttonStyle(.glassProminent)
-            .buttonBorderShape(.circle)
-            .tint(Theme.water)
-            .disabled(!state.canToggle)
-            .background {
-                if state == .running {
-                    PulseHalo()
+            RoundIconButton(systemImage: state.primarySymbol, prominence: .primary, action: onToggle)
+                .disabled(!state.canToggle)
+                .background {
+                    if state == .running {
+                        PulseHalo()
+                    }
                 }
-            }
-            .accessibilityLabel(state.primaryLabel)
+                .accessibilityLabel(state.primaryLabel)
         }
         // Petite vibration à chaque changement d'état.
         .sensoryFeedback(.impact(weight: .medium), trigger: state)

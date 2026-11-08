@@ -7,119 +7,69 @@
 
 import SwiftUI
 
+/// Détail d'un objectif atteint.
 struct MoreInformation: View {
-    let managementHistory : [ManagementHistory]
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            ForEach(managementHistory) { history in
-                
-                ScrollView {
-                    VStack {
-                        
-                        Spacer()
-                        
-                        Text(history.name)
-                            .font(.largeTitle)
-                            .foregroundStyle(.blue)
-                            .fontWeight(.bold)
-                        
-                        Spacer()
-                        
-                        ZStack {
-                            // Cercle de fond
-                            Circle()
-                                .fill(.blue.opacity(0.8))
-                                .frame(height: 300)
-                                .overlay( // ✅ contour arrondi noir
-                                    Circle()
-                                        .stroke(.black, lineWidth: 4)
-                                        .blur(radius: 9)
-                                )
-                            
-                            // Image au centre
-                            Image("teste")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 220, height: 220)
-                                .shadow(color: .blue.opacity(0.8), radius: 15)
-                        }
-                        
-                        VStack(alignment: .leading) {
-                            
-                            
-                            HStack {
-                                Image(systemName: "drop.fill")
-                                    .resizable()
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 30,height: 40)
-                                
-                                Spacer()
-                                
-                                Text(history.quantity)
-                                    .foregroundStyle(.blue)
-                                    .fontWeight(.bold)
-                            }
-                            
-                            .padding()
-                            
-                            HStack {
-                                Image(systemName: "calendar")
-                                    .resizable()
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 40,height: 40)
-                                
-                                Spacer()
-                                
-                                Text(history.date)
-                                    .foregroundStyle(.blue)
-                                    .fontWeight(.bold)
-                            }
-                            .padding()
-                            
-                        }
-                        .padding()
-                        
-                        Spacer()
-                    }
-                    .toolbar(content: {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button {
-                                withAnimation {
-                                    dismiss()
-                                }
-                            } label: {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "chevron.left")
-                                    Text("Historique d'hydratation")
-                                }
-                                .foregroundStyle(.blue)
-                            }
-                        }
-                    })
-                    .navigationBarBackButtonHidden()
-                    .padding()
-                }
-            }
-            
-            .padding()
-            
-        }
-           
+    let entry: ManagementHistory
 
-        
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 32) {
+                Image(systemName: "drop.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(Theme.ringGradient)
+                    .frame(width: 140, height: 140)
+                    .glassEffect(.regular, in: .circle)
+                    .accessibilityHidden(true)
+
+                VStack(spacing: 4) {
+                    Text(entry.quantity)
+                        .font(.system(size: 56, weight: .light, design: .rounded))
+                        .monospacedDigit()
+                    Text("Objectif atteint")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(spacing: 0) {
+                    DetailRow(title: "Profil", value: entry.name, systemImage: "person.fill")
+                    Divider().padding(.leading, 52)
+                    DetailRow(title: "Date", value: entry.date, systemImage: "calendar")
+                }
+                .glassEffect(.regular, in: .rect(cornerRadius: 20))
+            }
+            .padding(24)
+        }
+        .background { AppBackground() }
+        .navigationTitle(entry.name)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Ligne « icône · titre · valeur » de la carte de détail.
+private struct DetailRow: View {
+    let title: String
+    let value: String
+    let systemImage: String
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: systemImage)
+                .foregroundStyle(Theme.water)
+                .frame(width: 20)
+            Text(title)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(value)
+                .fontWeight(.medium)
+                .multilineTextAlignment(.trailing)
+        }
+        .padding()
+        .accessibilityElement(children: .combine)
     }
 }
 
 #Preview {
-    MoreInformation(
-        managementHistory: [ManagementHistory(name: "Sports", quantity: "12.2L", date: "11/11/2029")]
-    )
+    NavigationStack {
+        MoreInformation(entry: ManagementHistory(name: "Sportifs", quantity: "3,0 L", date: "08/11/2026"))
+    }
 }

@@ -43,21 +43,8 @@ struct TimerSettings: View {
                                 .font(.headline)
                                 .padding(.horizontal, 4)
                             
-                            Picker(
-                                selection: $selectedHour,
-                                label:
-                                    HStack {
-                                    Text(selectedHour == 0 ? "Sélectionner"
-                                        : hydrationActivationViewModel.formatHour(selectedHour)
-                                    )
-                                    .foregroundColor(selectedHour == 0 ? .gray : .primary)
-                                    .lineLimit(1)
-                                        
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.gray)
-                                }
-                            ) {
+                            // Le style `.navigationLink` affiche déjà la valeur choisie et le chevron.
+                            Picker(selection: $selectedHour, label: Text("Durée")) {
                                 ForEach(hour, id: \.self) { value in
                                     Text(hydrationActivationViewModel.formatHour(value))
                                         .lineLimit(1)
@@ -78,13 +65,7 @@ struct TimerSettings: View {
                                 .font(.headline)
                                 .padding(.horizontal, 4)
                             
-                            Picker(selection: $selectedItems, label: HStack {
-                                Text(selectedItems.isEmpty ? "Sélectionner" : selectedItems)
-                                    .foregroundColor(selectedItems.isEmpty ? .gray : .primary)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.gray)
-                            }) {
+                            Picker(selection: $selectedItems, label: Text("Son")) {
                                 ForEach(sound, id: \.self) { item in
                                     Text(item)
                                 }
@@ -211,6 +192,7 @@ struct CustomButton: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.glassProminent)
+            .tint(Theme.water)
             .controlSize(.large)
             .disabled(test() == true)
             .padding()

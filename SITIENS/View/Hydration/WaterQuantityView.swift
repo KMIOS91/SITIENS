@@ -6,225 +6,64 @@
 //
 
 import SwiftUI
-import CoreData
-import Combine
 import WidgetKit
 
+/// Suivi de l'eau bue dans la journée.
 struct WaterQuantityView: View {
-    @AppStorage("updateHeight") var updateHeightRaw : Double = 0
-    @AppStorage("progress")  var progressRaw: Double = 0
-    @AppStorage("profilType") var profilTypeRaw: String = ""
-    @AppStorage("glace") var glaceRaw: String = ""
+    // Sauvegarde du suivi : relue à l'affichage, réécrite à chaque verre ajouté.
+    @AppStorage("updateHeight") private var updateHeightRaw: Double = 0
+    @AppStorage("progress") private var progressRaw: Double = 0
+    @AppStorage("profilType") private var profilTypeRaw: String = ""
+    @AppStorage("glace") private var glaceRaw: String = ""
     /// Date (timestamp) du dernier verre ajouté, pour remettre le suivi à zéro chaque jour.
-    @AppStorage("lastTrackingDate") var lastTrackingDate: Double = 0
+    @AppStorage("lastTrackingDate") private var lastTrackingDate: Double = 0
+
+    @Bindable var historyViewModel: HistoryViewModel
+    @State private var userSettingsViewModel = UserSettingsViewModel()
+
+    /// Niveau de remplissage sur une échelle de 0 à 300 (le plein).
+    @State private var updateHeight: CGFloat = 0
+    /// Part de l'objectif atteinte (peut dépasser 1 avec le dernier verre).
+    @State private var progress: CGFloat = 0
+    @State private var profilType = ""
+    @State private var glace = ""
+    @State private var isSettingsPresented = false
+
     @Environment(\.scenePhase) private var scenePhase
-    @State var updateHeight : CGFloat = 0
-    @State var sheetPresented : Bool = false
-    @State var profilType : String = ""
-    @Bindable var userSettingsViewModel = UserSettingsViewModel()
-    @State var throwError : Bool = false
-    @State var showMessage : Bool = false
-    @Bindable var historyViewModel : HistoryViewModel
-    @State var progress : CGFloat = 0.0
-    @State var startAnimation : CGFloat = 0
-    @State private var isScaledUp = false
-    @State var glace : String = ""
-    @Environment(\.verticalSizeClass) var verticalSizeClass
-    var currentWater : CGFloat {
-        updateHeight * userSettingsViewModel.updateType(name:profilType)
-    }
-    
-    var targetWater : CGFloat {
-        userSettingsViewModel.updateWater(type: profilType)
-    }
-    
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// Échelle interne du niveau : 300 correspond à l'objectif atteint.
+    private let fullHeight: CGFloat = 300
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                backgroundGradient
-                
-                if verticalSizeClass == .compact {
-                    ScrollView(.vertical,showsIndicators: true) {
-                            container
-                        
-                    }
-                    
-                    
-                }else {
-                    container
-                }
-              
-              
-            }
-        }
-        
-    }
-    
-    private var container : some View {
-        VStack{
-            Text("Hydratation")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.blue)
-                .padding()
-            
-            let currentWater = updateHeight * userSettingsViewModel.updateType(name:profilType)
-            let targetWater = userSettingsViewModel.updateWater(type: profilType)
-            
-            Text("\(currentWater > targetWater ? targetWater : currentWater ,format: .number.precision(.fractionLength(1)))L / \(targetWater,format: .number.precision(.fractionLength(1)))L")
-                .foregroundStyle(.gray)
-                .font(.title2)
-            
-                
-                ZStack{
-                    
-                    Image(systemName: "drop.fill")
-                        .resizable()
-                        .renderingMode(.template)
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundStyle(.white)
-                    
-                    WaterWave(
-                        progress: progress,
-                        waveHeight:0.1,
-                        offset: startAnimation
-                    )
-                    .fill(Color.blue)
-                    .scaleEffect(x: isScaledUp ? 1.1:1,y:isScaledUp ? 1:1.1)
-                    .overlay(
-                        content: {
-                            CircleView(width: 15, height: 15, x: -20, y: 0)
-                            CircleView(width: 15, height: 15, x: 40, y: 30)
-                            CircleView(width: 25, height: 25, x: -30, y: 80)
-                            CircleView(width: 25, height: 25, x: 50, y: 70)
-                            CircleView(width: 10, height: 10, x: 40, y: 100)
-                            CircleView(width: 10, height: 10, x: -40, y: 50)
-                            
-                        })
-                    .mask {
-                        Image(systemName: "drop.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .padding(20)
-                    }
-                    .overlay(
-                        alignment:.bottom
-                    ){
-                        increaseWaterAmount(
-                            throwError: $throwError,
-                            showMessage: $showMessage,
-                            profilType: $profilType,
-                            glace: $glace,
-                            updateHeight: $updateHeight,
-                            userSettingsViewModel: userSettingsViewModel,
-                            progress: $progress
-                        )
-                    }
-                    
-                    let percentFilled = (updateHeight / 300) * 100
-                    
-                    if progress > 1.0 {
-                        Text("100 %")
-                            .foregroundStyle(updateHeight >= 150 ? .white: .blue)
-                            .font(.title)
-                            .offset(y:75)
-                        //attention
-                    }else {
-                        Text("\(Int(percentFilled)) %")
-                            .foregroundStyle(Int(percentFilled) > 40 ? .white: .blue)
-                            .font(.title)
-                            .offset(y:40)
-                    }
-                }
-                .frame(
-                    maxWidth: verticalSizeClass == .compact ? 300 : .infinity,
-                    maxHeight: verticalSizeClass == .compact ? 300 : .infinity,
-                    alignment: .center
-                )
-                .onAppear{
-                    updateHeight = CGFloat(updateHeightRaw)
-                    progress = CGFloat(progressRaw)
-                    profilType = profilTypeRaw
-                    glace = glaceRaw
-                    resetIfNewDay()
-                    publishToWidget()
-                    
-                    withAnimation(
-                        .linear(duration: 0.8)
-                        .repeatForever(autoreverses: true)){
-                            startAnimation = 300
-                            isScaledUp = true
-                        }
-                }
-           
+            // En paysage, la goutte et les boutons se placent côte à côte.
+            let layout = verticalSizeClass == .compact
+                ? AnyLayout(HStackLayout(spacing: 48))
+                : AnyLayout(VStackLayout(spacing: 28))
 
-            if updateHeight != 0 {
-                
-                Button {
-                    withAnimation {
-                        updateHeight = 0
-                        progress = 0
-                    }
-                    
-                } label: {
-                    Label("Réinitialiser", systemImage: "arrow.counterclockwise")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
+            layout {
+                VStack(spacing: 24) {
+                    header
+                    WaterDrop(level: min(progress, 1))
+                        .frame(maxHeight: verticalSizeClass == .compact ? 220 : 280)
                 }
-                .buttonStyle(.glassProminent)
-                .tint(.orange)
-                .controlSize(.large)
-                .padding()
-                .accessibilityLabel("Réinitialiser le suivi")
-                .accessibilityHint("Remet le niveau d'eau et la progression à zéro")
-                .accessibilityAddTraits(.isButton)
+
+                VStack(spacing: 20) {
+                    controls
+                    glassGoal
+                }
             }
-            
-            if throwError && profilType.isEmpty {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(Color.orange)
-                    Text("Veuillez bien sélectionner un profil")
-                }
-                .opacity(showMessage ? 1 : 0)
-                .animation(
-                    .easeOut(duration: 1.0),value: showMessage
-                )
-            }
-            
-            if !glace.isEmpty {
-                VStack {
-                    HStack{
-                        ZStack {
-                            Circle()
-                                .frame(width: 70,height: 70)
-                                .foregroundStyle(.blue)
-                            
-                            Circle()
-                                .frame(width: 70,height: 60)
-                                .foregroundStyle(.white)
-                            Image(userSettingsViewModel.chooseBottleOfWater(name: glace))
-                                .resizable()
-                                .frame(width: 40, height: 40, alignment: .center)
-                        }
-                    }
-                    
-                    let type = userSettingsViewModel.uptateQuanittyOfWater(
-                        quantityWater : profilType,
-                        chooseBottle:glace
-                    )
-                    
-                    let rounded = ceil(type)
-                  
-                    Text("X \(Int(rounded))")
-                    
-                }
+            .padding(.horizontal, 32)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background { AppBackground() }
+            .navigationTitle("Hydratation")
+            .toolbar { toolbarContent }
+            .sheet(isPresented: $isSettingsPresented) {
+                UserSettingsView(profil: $profilType, glace: $glace)
             }
         }
-        .toolbar {
-            settingsToolbar
-            historyToolbar
-        }
+        .onAppear(perform: restoreTracking)
         .onChange(of: profilType) {
             profilTypeRaw = profilType
             publishToWidget()
@@ -234,33 +73,170 @@ struct WaterQuantityView: View {
             if scenePhase == .active { resetIfNewDay() }
         }
         .onChange(of: updateHeight) {
-            if updateHeight > 0 { lastTrackingDate = Date.now.timeIntervalSince1970 }
-            updateHeightRaw = Double(updateHeight)
-            progressRaw = Double(progress)
-            profilTypeRaw = profilType
-            glaceRaw = glace
-            publishToWidget()
-            
-            if updateHeight >= 300 {
-                
-                historyViewModel.name = profilType
-               
-                
-                let formattedQuantity = String(format: "%.1fL", Double(updateHeight) * userSettingsViewModel.updateType(name: profilType))
-                historyViewModel.quantity = formattedQuantity
-                
-                Task{
-                    do{
-                        try historyViewModel.addHistory()
-                    }catch{
-                        print("Erreur lors du test de l'ajout de l'historique : \(error)")
-                    }
+            saveTracking()
+        }
+    }
+
+    // MARK: - Calculs
+
+    private var isConfigured: Bool {
+        !profilType.isEmpty && !glace.isEmpty
+    }
+
+    /// Litres bus aujourd'hui.
+    private var currentWater: CGFloat {
+        updateHeight * userSettingsViewModel.updateType(name: profilType)
+    }
+
+    /// Litres à boire dans la journée selon le profil.
+    private var targetWater: CGFloat {
+        userSettingsViewModel.updateWater(type: profilType)
+    }
+
+    private var canAddGlass: Bool {
+        isConfigured && targetWater > 0 && updateHeight < fullHeight && progress < 1
+    }
+
+    // MARK: - Affichage
+
+    /// Litres bus et objectif, au-dessus de la goutte.
+    private var header: some View {
+        VStack(spacing: 4) {
+            Text(liters(min(currentWater, targetWater)))
+                .font(.system(size: 56, weight: .light, design: .rounded))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(.snappy, value: currentWater)
+
+            Text(isConfigured
+                 ? "sur \(liters(targetWater)) aujourd'hui"
+                 : "Choisissez un profil et un récipient")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var controls: some View {
+        HStack(spacing: 32) {
+            RoundIconButton(systemImage: "arrow.counterclockwise") {
+                withAnimation {
+                    updateHeight = 0
+                    progress = 0
                 }
+            }
+            .disabled(updateHeight == 0)
+            .accessibilityLabel("Réinitialiser le suivi")
+            .accessibilityHint("Remet le niveau d'eau à zéro")
+
+            RoundIconButton(systemImage: "plus", prominence: .primary, action: addGlass)
+                .disabled(!canAddGlass)
+                .accessibilityLabel("Ajouter un verre d'eau")
+                .accessibilityHint("Ajoute la quantité d'eau choisie au suivi du jour")
+        }
+        // Vibration qui « monte » à chaque verre ajouté.
+        .sensoryFeedback(.increase, trigger: updateHeight)
+    }
+
+    /// Rappel de l'objectif en verres : « 8 verres de 300 ml ».
+    @ViewBuilder
+    private var glassGoal: some View {
+        if isConfigured {
+            let glasses = Int(ceil(userSettingsViewModel.uptateQuanittyOfWater(
+                quantityWater: profilType,
+                chooseBottle: glace
+            )))
+            let milliliters = userSettingsViewModel.quantityWaterNumber(chooseBottle: glace)
+
+            Label {
+                Text("\(glasses) verres de \(milliliters) ml")
+            } icon: {
+                Image(userSettingsViewModel.chooseBottleOfWater(name: glace))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .glassEffect(.regular, in: .capsule)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            NavigationLink {
+                ShowHistory(historyViewModel: HistoryViewModel(viewContext: historyViewModel.viewContext))
+                    .onAppear { historyViewModel.reload() }
+            } label: {
+                Label("Historique", systemImage: "clock.arrow.circlepath")
             }
         }
 
+        ToolbarItem(placement: .topBarTrailing) {
+            Button("Profil", systemImage: "person.crop.circle") {
+                isSettingsPresented = true
+            }
+            // Le profil ne change pas en cours de journée : les verres déjà bus en dépendent.
+            .disabled(progress != 0)
+        }
     }
-    
+
+    /// « 1,2 L », avec la virgule de la langue de l'appareil.
+    private func liters(_ value: CGFloat) -> String {
+        "\(Double(value).formatted(.number.precision(.fractionLength(1)))) L"
+    }
+
+    // MARK: - Actions
+
+    private func addGlass() {
+        guard canAddGlass else { return }
+        let progressPerGlass = userSettingsViewModel.showNumberOfGlass(chooseBottle: glace, name: profilType)
+        let heightPerGlass = userSettingsViewModel.uptateQuanittyOfWater2(quantityWater: profilType, chooseBottle: glace)
+
+        withAnimation {
+            updateHeight += heightPerGlass
+            progress += progressPerGlass
+        }
+
+        // Enregistré ici, au moment précis où l'objectif est atteint, et non dans `onChange` :
+        // `onChange` se déclenche aussi quand le niveau sauvegardé est relu au lancement,
+        // ce qui créait un doublon dans l'historique à chaque ouverture de l'app.
+        if updateHeight >= fullHeight {
+            recordGoalInHistory()
+        }
+    }
+
+    private func restoreTracking() {
+        updateHeight = CGFloat(updateHeightRaw)
+        progress = CGFloat(progressRaw)
+        profilType = profilTypeRaw
+        glace = glaceRaw
+        resetIfNewDay()
+        publishToWidget()
+    }
+
+    private func saveTracking() {
+        if updateHeight > 0 { lastTrackingDate = Date.now.timeIntervalSince1970 }
+        updateHeightRaw = Double(updateHeight)
+        progressRaw = Double(progress)
+        profilTypeRaw = profilType
+        glaceRaw = glace
+        publishToWidget()
+    }
+
+    /// Objectif atteint : on l'enregistre dans l'historique.
+    private func recordGoalInHistory() {
+        historyViewModel.name = profilType
+        historyViewModel.quantity = liters(currentWater)
+        do {
+            try historyViewModel.addHistory()
+        } catch {
+            print("Impossible d'enregistrer l'objectif dans l'historique : \(error)")
+        }
+    }
+
     /// Le suivi est journalier : un nouveau jour repart de zéro.
     private func resetIfNewDay() {
         guard userSettingsViewModel.isNewDay(lastTracking: lastTrackingDate) else { return }
@@ -269,7 +245,7 @@ struct WaterQuantityView: View {
         updateHeight = 0
         lastTrackingDate = 0
     }
-    
+
     /// Transmet la quantité du jour au widget (via l'App Group) et lui demande de se redessiner.
     private func publishToWidget() {
         let target = Double(targetWater)
@@ -288,193 +264,8 @@ struct WaterQuantityView: View {
         SharedHydrationStore.save(snapshot)
         WidgetCenter.shared.reloadTimelines(ofKind: SharedHydrationStore.widgetKind)
     }
-    
-    private var backgroundGradient: some View {
-        LinearGradient(
-            gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
-    }
-    
-    
-    private var settingsToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            if progress == 0 {
-                
-                Button {
-                    withAnimation {
-                        sheetPresented = true
-                    }
-                } label: {
-                    Image(systemName: "gearshape.fill")
-                        .font(.title2)
-                        .foregroundStyle(.primary)
-                        
-                }
-                
-                .sheet(isPresented: $sheetPresented) {
-                    
-                } content: {
-                    UserSettingsView(profil:$profilType,glace:$glace)
-                }
-                
-            }else{
-                
-                Image(systemName: "gearshape.fill")
-                    .font(.title2)
-                    .foregroundColor(.gray)
-            }
-        }
-    }
-    
-    private var historyToolbar :some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            NavigationLink {
-                ShowHistory(
-                    historyViewModel:HistoryViewModel(
-                        viewContext: historyViewModel.viewContext)
-                )
-                .onAppear{
-                    historyViewModel.reload()
-                }
-                
-            } label: {
-                Image(systemName: "clock.arrow.circlepath")
-                    .font(.title2)
-                    .foregroundStyle(.blue)
-            }
-        }
-    }
 }
 
 #Preview {
     WaterQuantityView(historyViewModel: HistoryViewModel())
-}
-
-struct WaterWave: Shape {
-    var progress : CGFloat
-    //Wague
-    var waveHeight : CGFloat
-    //Animation du début
-    var offset : CGFloat
-    // Aniamtion
-    var animation : CGFloat {
-        get{offset}
-        set{offset = newValue}
-    }
-    
-    func path(in rect: CGRect) -> Path {
-        return Path { path in
-            //Start
-            path.move(to: .zero)
-            
-//            let waveAmplitude = waveHeight * rect.height
-            let progressHeight : CGFloat = (1 - progress) * rect.height
-            let height = waveHeight * rect.height
-            
-            for value in stride(from: 0, to: rect.width, by: 2) {
-                let x : CGFloat = value
-                let sine : CGFloat = sin(Angle(degrees:  value + offset).radians)
-                let y : CGFloat = progressHeight + (height * sine)
-                
-                path.addLine(to: CGPoint(x: x, y: y))
-            }
-            path.addLine(to: CGPoint(x: rect.width, y: rect.height))
-            path.addLine(to: CGPoint(x: 0, y: rect.height))
-        }
-    }
-}
-
-struct CircleView: View {
-    let width : CGFloat
-    let height : CGFloat
-    let x : CGFloat
-    let y : CGFloat
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.white.opacity(0.1))
-                .frame(
-                    width: width,
-                    height: height
-                )
-                .offset(x: x, y: y)
-        }
-    }
-}
-
-struct increaseWaterAmount : View {
-    @Binding var throwError : Bool
-    @Binding var showMessage : Bool
-    @Binding var profilType : String
-    @Binding var glace : String
-    @Binding var updateHeight : CGFloat
-    @Bindable var userSettingsViewModel = UserSettingsViewModel()
-    @Binding var progress : CGFloat
-    @Environment(\.verticalSizeClass) var verticalSizeClass
-    var body: some View {
-        Button {
-            withAnimation {
-                throwError = true
-                showMessage = false
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
-                    withAnimation {
-                        showMessage = true
-                    }
-                })
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: {
-                    withAnimation {
-                        showMessage = false
-                        throwError = false
-                    }
-                })
-                
-                guard !profilType.isEmpty, !glace.isEmpty else { return }
-                
-                let isFull = updateHeight != 300
-                let updateWater = userSettingsViewModel.updateWater(type:profilType) != 0
-                
-                if isFull && updateWater && progress < 1 {
-                    
-                    let result = userSettingsViewModel.showNumberOfGlass(
-                        chooseBottle: glace,
-                        name: profilType
-                    )
-                    let water = userSettingsViewModel.uptateQuanittyOfWater2(quantityWater: profilType,chooseBottle: glace)
-                    
-                    withAnimation {
-                        
-                            updateHeight += water
-                        
-                        print("updateHeight: \(updateHeight)")
-                        progress += result
-                        print("progress: \(progress)")
-                    }
-                }
-            }
-            
-        } label: {
-            
-            Image(systemName: "plus")
-                .font(.system(size:verticalSizeClass == .compact ? 20 : 45,weight:.bold))
-                .foregroundStyle(.blue)
-                .shadow(radius: 2)
-                .padding(verticalSizeClass == .compact ? 12 : 25)
-                .background(
-                    Circle()
-                        .foregroundStyle(.white)
-                        .overlay(content: {
-                            Circle()
-                                .stroke(.blue,lineWidth:verticalSizeClass == .compact ? 3 : 6)
-                        })
-                )
-        }
-        .accessibilityLabel("Ajouter un verre d'eau")
-        .accessibilityHint("Ajoute la quantité d'eau choisie au suivi journalier")
-        .accessibilityAddTraits(.isButton)
-    }
 }
