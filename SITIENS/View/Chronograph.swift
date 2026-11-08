@@ -143,7 +143,7 @@ struct Chronograph: View {
                     startDate: $startDate,
                     elapseBeforPause: $elapseBeforPause,
                     selectedItems: $selectedItems,
-                    nameBtm: "Start"
+                    role: .reset
                 )
                 .disabled(selectedItems.isEmpty)
                 .accessibilityLabel("Bouton démarrer le minuteur")
@@ -156,7 +156,7 @@ struct Chronograph: View {
                     startDate: $startDate,
                     elapseBeforPause: $elapseBeforPause,
                     selectedItems: $selectedItems,
-                    nameBtm: "stop"
+                    role: .playPause
                 )
                 .disabled(selectedItems.isEmpty)
                 .accessibilityLabel("Bouton arrêter le minuteur")

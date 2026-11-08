@@ -8,6 +8,40 @@
 import SwiftUI
 import Combine
 
+
+/// Quel bouton afficher : « Réinitialiser » ou « Démarrer/Arrêter ».
+enum TimerButtonRole {
+    case reset
+    case playPause
+}
+
+/// État du minuteur : il porte lui-même son texte et sa couleur.
+enum TimerState {
+    case idle
+    case running
+
+    var label: String {
+        switch self {
+        case .idle: return "Démarrer"
+        case .running: return "Arrêter"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .idle: return .green
+        case .running: return .red
+        }
+    }
+
+    var accessibilityHint: String {
+        switch self {
+        case .idle: return "Lance le minuteur"
+        case .running: return "Met en pause le minuteur"
+        }
+    }
+}
+
 struct Start_timer: View {
     @Binding var showMessage: Bool
     @Bindable var hydrationActivationViewModel: HydrationActivationViewModel
@@ -18,14 +52,14 @@ struct Start_timer: View {
     @Binding var startDate: Date?
     @Binding var elapseBeforPause: Int
     @Binding var selectedItems: String
-    var nameBtm: String
+    var role: TimerButtonRole
     @State private var animeFrame: CGFloat = 1.0
     
     var body: some View {
         
         VStack {
-            if nameBtm == "Start" {
-                if  buttonLabel == "Démarrer"   {
+            if role == .reset {
+                if timerState == .idle {
                     Button {
                         timeInterval = timerhour
                         elapseBeforPause = 0
@@ -36,12 +70,13 @@ struct Start_timer: View {
                         HydrationLiveActivity.endAll()
                         
                         if timerhour == 0 && timeInterval == 0 {
-                            DispatchQueue.main
-                                .asyncAfter(deadline: .now() + 0.2, execute: {
-                                    withAnimation {
-                                        showMessage = true
-                                    }
-                                })
+                            
+                            Task {
+                                try? await Task.sleep(for: .milliseconds(200))
+                                withAnimation {
+                                    showMessage = true
+                                }
+                            }
                         }
                         
                     } label: {
@@ -82,17 +117,17 @@ struct Start_timer: View {
                         toggleTimer()
                         
                         if timerhour == 0 && timeInterval == 0 {
-                            DispatchQueue.main
-                                .asyncAfter(deadline: .now() + 0.2, execute: {
-                                    withAnimation {
-                                        showMessage = true
-                                    }
-                                })
+                            Task {
+                                try? await Task.sleep(for: .milliseconds(200))
+                                withAnimation {
+                                    showMessage = true
+                                }
+                            }
                         }
                     } label: {
                         ZStack {
                             Circle()
-                                .fill(fill)
+                                .fill(timerState.color)
                                 .frame(width: 13, height: 13)
                                 .shadow(radius: 10)
                             
@@ -101,12 +136,10 @@ struct Start_timer: View {
                                 .frame(width: 125, height: 125)
                                 .shadow(radius: 10)
                             
-                            if  buttonLabel == "Arrêter" {
+                            if timerState == .running {
                                 Circle()
                                     .fill(.red)
                                     .scaleEffect(animeFrame)
-                                    .frame(width:  120, height:  120)
-                                    .shadow(radius: 10)
                                     .animation(
                                         .easeIn(
                                             duration: 2)
@@ -119,6 +152,8 @@ struct Start_timer: View {
                                             animeFrame = 1.5
                                         }
                                     }
+                                    .frame(width:  120, height:  120)
+                                    .shadow(radius: 10)
                                     .onChange(of: animeFrame, {
                                         withAnimation {
                                             animeFrame = 1.0
@@ -127,11 +162,11 @@ struct Start_timer: View {
                             }
                             
                             Circle()
-                                .fill(fill)
+                                .fill(timerState.color)
                                 .frame(width: 120, height: 120)
                                 .shadow(radius: 10)
                             
-                            Text(buttonLabel)
+                            Text(timerState.label)
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.white)
@@ -139,8 +174,8 @@ struct Start_timer: View {
                     }
                     .buttonStyle(.plain)
                     .padding()
-                    .accessibilityLabel("Bouton \(buttonLabel)")
-                    .accessibilityHint(buttonLabel == "Démarrer" ? "Lance le minuteur" : "Met en pause le minuteur")
+                    .accessibilityLabel("Bouton \(timerState.label)")
+                    .accessibilityHint(timerState.accessibilityHint)
                     .accessibilityAddTraits(.isButton)
                 }
             }
@@ -163,17 +198,6 @@ struct Start_timer: View {
     }
     
     // vérifier elapseBeforPause car le problème provient d'un delai absurde
-    var fill : Color {
-        switch buttonLabel{
-        case "Démarrer" :
-            return .green
-        case "Arrêter" :
-            return .red
-        default:
-            return .gray
-        }
-    }
-    
     func stopTimer() {
         cancellable?.cancel()
         if let start = startDate {
@@ -183,12 +207,11 @@ struct Start_timer: View {
         }
     }
     
-    var buttonLabel: String {
-        
+    var timerState: TimerState {
         if timerIsReading && timeInterval != 0 && timeInterval != timerhour {
-            return "Arrêter"
+            return .running
         } else {
-            return "Démarrer"
+            return .idle
         }
     }
     
@@ -240,7 +263,7 @@ struct Start_timer: View {
             cancellable: $cancellable,
             startDate: $startDate,
             elapseBeforPause: $elapseBeforPause,
-            selectedItems: $selectedItems, nameBtm: "Start"
+            selectedItems: $selectedItems, role: .reset
         )
         
         Start_timer(
@@ -250,7 +273,7 @@ struct Start_timer: View {
             cancellable: $cancellable,
             startDate: $startDate,
             elapseBeforPause: $elapseBeforPause,
-            selectedItems: $selectedItems, nameBtm: "stop"
+            selectedItems: $selectedItems, role: .playPause
         )
     }
 }
