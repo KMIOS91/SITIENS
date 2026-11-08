@@ -14,12 +14,7 @@ struct AppClipHomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                AppBackground()
                 
                     VStack(spacing: 24) {
                         Spacer()
@@ -50,7 +45,7 @@ struct AppClipHomeView: View {
                                 Il est fortement déconseillé de boire plus de 5 litres d’eau par jour... 
                                 """)
                                 .font(.body)
-                                .foregroundStyle(Color("TextBackground"))
+                                .foregroundStyle(.primary)
                         }
                         .padding(.horizontal)
                         .accessibilityLabel("Navigation vers le détail de la question")
@@ -61,12 +56,11 @@ struct AppClipHomeView: View {
                         }) {
                             Text("Ignorer")
                                 .font(.headline)
-                                .padding()
                                 .frame(maxWidth: .infinity)
-                                .background(Color(.blue).opacity(0.4))
-                                .foregroundColor(.white)
-                                .cornerRadius(16)
                         }
+                        .buttonStyle(.glassProminent)
+                        .tint(Theme.water)
+                        .controlSize(.large)
                         .padding(.horizontal)
                         .accessibilityLabel("Ignorer l'introduction")
                         .accessibilityValue(hasSeenIntro == true
@@ -166,11 +160,11 @@ struct InfoSection: View {
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundStyle(Color("TextBackground"))
+                .foregroundStyle(.primary)
             
             Text(text)
                 .font(.body)
-                .foregroundStyle(Color("TextBackground"))
+                .foregroundStyle(.primary)
         }
     }
 }

@@ -55,7 +55,7 @@ final class WaterTracker {
 
     init(
         goals: GoalRecording,
-        widget: HydrationWidgetPublishing = SharedWidgetPublisher(),
+        widget: HydrationWidgetPublishing,
         defaults: UserDefaults = .standard,
         now: @escaping () -> Date = { .now },
         calendar: Calendar = .current

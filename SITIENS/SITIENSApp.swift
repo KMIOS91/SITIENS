@@ -25,7 +25,7 @@ struct SITIENSApp: App {
 
         let history = HistoryViewModel()
         _historyViewModel = State(initialValue: history)
-        _waterTracker = State(initialValue: WaterTracker(goals: history))
+        _waterTracker = State(initialValue: WaterTracker(goals: history, widget: SharedWidgetPublisher()))
     }
     
     var body: some Scene {

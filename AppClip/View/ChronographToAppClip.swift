@@ -21,13 +21,7 @@ struct ChronographToAppClip: View {
         NavigationStack {
             ZStack {
                 
-                // MARK: - Fond avec dégradé bleu/cyan
-                LinearGradient(
-                    gradient: Gradient(colors: [.blue.opacity(0.3), .cyan.opacity(0.2)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                AppBackground()
                 
                 VStack(spacing: 32) {
                     VStack(spacing: 4) {

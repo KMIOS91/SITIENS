@@ -140,6 +140,21 @@
 			);
 			target = 4FA205942DA40CAF004C8CC4 /* SITIENS */;
 		};
+		C1A0D0E0F0A1B2C3D4E5F601 /* Exceptions for "SITIENS" folder in "AppClip" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DesignSystem/RoundIconButton.swift,
+				DesignSystem/Theme.swift,
+				Model/Hydration/HydrationProfile.swift,
+				Model/Hydration/WaterContainer.swift,
+				View/Hydration/HydrationDashboard.swift,
+				View/Hydration/WaterDrop.swift,
+				View/UserSettingsView.swift,
+				ViewModel/Hydration/WaterTracker.swift,
+				ViewModel/Hydration/WaterTrackerDependencies.swift,
+			);
+			target = 4F4B18C42E3D610D00ADD5B4 /* AppClip */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -165,6 +180,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				4F0F14432DA8448900293227 /* Exceptions for "SITIENS" folder in "SITIENS" target */,
+				C1A0D0E0F0A1B2C3D4E5F601 /* Exceptions for "SITIENS" folder in "AppClip" target */,
 			);
 			path = SITIENS;
 			sourceTree = "<group>";
