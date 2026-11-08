@@ -50,8 +50,8 @@ struct WaterTrackerTests {
     /// Sportif (objectif 3 L) avec un grand verre de 500 ml : 6 verres par jour.
     func makeConfiguredTracker() -> WaterTracker {
         let tracker = makeTracker()
-        tracker.profile = "Sportifs"
-        tracker.container = "Grand – 500 ml"
+        tracker.profile = .athlete
+        tracker.container = .large
         return tracker
     }
 
@@ -73,8 +73,8 @@ struct WaterTrackerTests {
 
     @Test func glassCountIsRoundedUp() {
         let tracker = makeTracker()
-        tracker.profile = "Nourrissons"       // 0,7 L
-        tracker.container = "Petit – 200 ml"  // 3,5 verres → 4
+        tracker.profile = .infant       // 0,7 L
+        tracker.container = .small      // 3,5 verres → 4
         #expect(tracker.glassesPerDay == 4)
     }
 
@@ -108,8 +108,8 @@ struct WaterTrackerTests {
 
     @Test func litersAreCappedAtTheGoal() {
         let tracker = makeTracker()
-        tracker.profile = "Nourrissons"       // 0,7 L
-        tracker.container = "Grand – 500 ml"  // 2 verres = 1 L
+        tracker.profile = .infant       // 0,7 L
+        tracker.container = .large      // 2 verres = 1 L
         tracker.addGlass()
         tracker.addGlass()
         #expect(tracker.drunkLiters == 0.7)
@@ -144,7 +144,7 @@ struct WaterTrackerTests {
         clock.advance(byHours: 24)
         tracker.refresh()
         #expect(tracker.glassesToday == 0)
-        #expect(tracker.profile == "Sportifs")
+        #expect(tracker.profile == .athlete)
     }
 
     @Test func laterTheSameDayKeepsTheGlasses() {
@@ -154,6 +154,13 @@ struct WaterTrackerTests {
         clock.advance(byHours: 10)  // 19 h, toujours le 1er novembre
         tracker.refresh()
         #expect(tracker.glassesToday == 1)
+    }
+
+    @Test func unknownSavedProfileIsIgnored() {
+        defaults.set("Profil supprimé", forKey: WaterTracker.Keys.profile)
+        let tracker = makeTracker()
+        #expect(tracker.profile == nil)
+        #expect(!tracker.isConfigured)
     }
 
     @Test func legacyProgressIsMigratedToGlasses() {

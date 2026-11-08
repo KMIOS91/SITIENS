@@ -95,11 +95,11 @@ struct WaterQuantityView: View {
     /// Rappel de l'objectif en verres : « 6 verres de 500 ml ».
     @ViewBuilder
     private var glassGoal: some View {
-        if tracker.isConfigured {
+        if tracker.isConfigured, let container = tracker.container {
             Label {
-                Text("\(tracker.glassesPerDay) verres de \(tracker.containerMilliliters) ml")
+                Text("\(tracker.glassesPerDay) verres de \(container.milliliters) ml")
             } icon: {
-                Image(tracker.containerImageName)
+                Image(container.imageName)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 22, height: 22)

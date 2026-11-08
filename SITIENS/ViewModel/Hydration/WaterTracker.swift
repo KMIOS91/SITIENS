@@ -21,17 +21,17 @@ final class WaterTracker {
         static let legacyProgress = "progress"
     }
 
-    /// Profil choisi (« Sportifs »…), qui fixe l'objectif du jour.
-    var profile: String {
+    /// Profil choisi, qui fixe l'objectif du jour (`nil` tant qu'aucun n'est choisi).
+    var profile: HydrationProfile? {
         didSet {
-            defaults.set(profile, forKey: Keys.profile)
+            defaults.set(profile?.rawValue, forKey: Keys.profile)
             publishToWidget()
         }
     }
 
-    /// Récipient choisi (« Moyen – 300 ml »…).
-    var container: String {
-        didSet { defaults.set(container, forKey: Keys.container) }
+    /// Récipient choisi (`nil` tant qu'aucun n'est choisi).
+    var container: WaterContainer? {
+        didSet { defaults.set(container?.rawValue, forKey: Keys.container) }
     }
 
     /// Nombre de verres bus aujourd'hui.
@@ -49,7 +49,6 @@ final class WaterTracker {
     // Dépendances injectées : les vraies dans l'app, des fausses dans les tests.
     @ObservationIgnored private let goals: GoalRecording
     @ObservationIgnored private let widget: HydrationWidgetPublishing
-    @ObservationIgnored private let calculator: UserSettingsViewModel
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let calendar: Calendar
@@ -57,20 +56,19 @@ final class WaterTracker {
     init(
         goals: GoalRecording,
         widget: HydrationWidgetPublishing = SharedWidgetPublisher(),
-        calculator: UserSettingsViewModel = UserSettingsViewModel(),
         defaults: UserDefaults = .standard,
         now: @escaping () -> Date = { .now },
         calendar: Calendar = .current
     ) {
         self.goals = goals
         self.widget = widget
-        self.calculator = calculator
         self.defaults = defaults
         self.now = now
         self.calendar = calendar
 
-        profile = defaults.string(forKey: Keys.profile) ?? ""
-        container = defaults.string(forKey: Keys.container) ?? ""
+        // Une valeur inconnue (ou absente) donne `nil` : l'utilisateur devra choisir à nouveau.
+        profile = defaults.string(forKey: Keys.profile).flatMap(HydrationProfile.init(rawValue:))
+        container = defaults.string(forKey: Keys.container).flatMap(WaterContainer.init(rawValue:))
         lastTrackingDate = defaults.double(forKey: Keys.lastTrackingDate)
         glassesToday = 0
         glassesToday = savedGlasses()
@@ -80,21 +78,16 @@ final class WaterTracker {
 
     /// Objectif du jour en litres, selon le profil (0 sans profil).
     var targetLiters: Double {
-        calculator.updateWater(type: profile)
+        profile?.dailyLiters ?? 0
     }
 
     /// Contenance du récipient en millilitres (0 sans récipient).
     var containerMilliliters: Int {
-        calculator.quantityWaterNumber(chooseBottle: container)
-    }
-
-    /// Nom de l'image du récipient dans le catalogue d'assets.
-    var containerImageName: String {
-        calculator.chooseBottleOfWater(name: container)
+        container?.milliliters ?? 0
     }
 
     var isConfigured: Bool {
-        targetLiters > 0 && containerMilliliters > 0
+        profile != nil && container != nil
     }
 
     /// Nombre de verres nécessaires pour atteindre l'objectif.
@@ -144,9 +137,9 @@ final class WaterTracker {
         publishToWidget()
 
         // Enregistré au moment précis où l'objectif est atteint (et donc une seule fois par jour).
-        if isGoalReached {
+        if isGoalReached, let profile {
             do {
-                try goals.recordGoal(profile: profile, liters: drunkLiters)
+                try goals.recordGoal(profile: profile.name, liters: drunkLiters)
             } catch {
                 print("Impossible d'enregistrer l'objectif dans l'historique : \(error)")
             }
@@ -161,11 +154,19 @@ final class WaterTracker {
     /// À appeler à l'affichage et au retour au premier plan :
     /// le suivi est journalier, un nouveau jour repart de zéro.
     func refresh() {
-        if calculator.isNewDay(lastTracking: lastTrackingDate, now: now(), calendar: calendar) {
+        if Self.isNewDay(lastTracking: lastTrackingDate, now: now(), calendar: calendar) {
             glassesToday = 0
             lastTrackingDate = 0
         }
         publishToWidget()
+    }
+
+    /// Vrai quand le dernier verre date d'un autre jour que `now`.
+    /// `lastTracking` vaut 0 quand aucun verre n'a encore été ajouté.
+    nonisolated static func isNewDay(lastTracking: TimeInterval, now: Date, calendar: Calendar) -> Bool {
+        guard lastTracking > 0 else { return false }
+        let lastDate = Date(timeIntervalSince1970: lastTracking)
+        return !calendar.isDate(lastDate, inSameDayAs: now)
     }
 
     // MARK: - Étapes internes
