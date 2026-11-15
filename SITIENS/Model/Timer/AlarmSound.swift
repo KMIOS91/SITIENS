@@ -5,6 +5,8 @@
 //  Sons proposés pour la fin du minuteur.
 //
 
+import Foundation
+
 /// Son joué quand il est temps de boire.
 ///
 /// La `rawValue` est le nom du fichier .mp3 (dans Model/Audios) : c'est aussi la valeur
@@ -31,20 +33,20 @@ enum AlarmSound: String, CaseIterable, Identifiable {
     /// Nom affiché dans les réglages.
     var title: String {
         switch self {
-        case .basique: "Basique"
-        case .ringtone: "Sonnerie"
-        case .musicBox: "Boîte à musique"
+        case .basique: String(localized: "Basique")
+        case .ringtone: String(localized: "Sonnerie")
+        case .musicBox: String(localized: "Boîte à musique")
         case .freshBreeze: "Fresh Breeze"
         case .cloverFeast: "Clover Feast"
         case .asphaltSizzle: "Asphalt Sizzle"
         case .alone: "Alone"
-        case .coolGuitarLoop: "Guitare"
+        case .coolGuitarLoop: String(localized: "Guitare")
         case .futureDesign: "Future Design"
         case .gardensStylishChill: "Gardens – Stylish Chill"
         case .kugelsicher: "Kugelsicher (TremoxBeatz)"
         case .lofiEffect: "Lofi Effect"
         case .lofiSample: "Lofi – If I Can't Have You"
-        case .meditation: "Méditation"
+        case .meditation: String(localized: "Méditation")
         case .mysticalMusic: "Mystical Music"
         }
     }

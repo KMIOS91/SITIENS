@@ -5,6 +5,8 @@
 //  Récipients proposés pour boire, avec leur contenance.
 //
 
+import Foundation
+
 /// Récipient choisi dans les réglages : chaque appui sur « + » ajoute sa contenance.
 ///
 /// La `rawValue` reprend les chaînes enregistrées par les versions précédentes.
@@ -15,7 +17,14 @@ enum WaterContainer: String, CaseIterable, Identifiable {
 
     var id: Self { self }
 
-    var name: String { rawValue }
+    /// Nom affiché, traduit. La `rawValue` (en français) reste l'identifiant enregistré.
+    var name: String {
+        switch self {
+        case .small: String(localized: "Petit – 200 ml")
+        case .medium: String(localized: "Moyen – 300 ml")
+        case .large: String(localized: "Grand – 500 ml")
+        }
+    }
 
     var milliliters: Int {
         switch self {

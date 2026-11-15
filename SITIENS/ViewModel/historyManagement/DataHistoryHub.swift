@@ -127,8 +127,8 @@ class DataHistoryHub : HydrationProtocol {
         guard seconds > 0 else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Il est temps de boire de l'eau"
-        content.body = "Boire de l'eau est essentiel à notre bien-être"
+        content.title = String(localized: "Il est temps de boire de l'eau")
+        content.body = String(localized: "Boire de l'eau est essentiel à notre bien-être")
         content.sound = .default
 
         let trigger = UNTimeIntervalNotificationTrigger(

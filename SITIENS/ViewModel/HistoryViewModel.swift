@@ -43,7 +43,7 @@ import SwiftUI
     
     func showMessageError()  -> String? {
         if name.isEmpty || quantity.isEmpty   {
-            return "Veuillez remplir tous les champs."
+            return String(localized: "Veuillez remplir tous les champs.")
         }
         return nil
     }

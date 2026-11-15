@@ -5,6 +5,8 @@
 //  Durées proposées pour le minuteur.
 //
 
+import Foundation
+
 enum TimerDurationOptions {
     /// Raccourcis affichés dans les réglages, en secondes : de 15 min à 3 h.
     static let presets = [900, 1800, 2700, 3600, 5400, 7200, 10800]
@@ -28,9 +30,11 @@ enum TimerDurationOptions {
         let hours = seconds / 3600
         let minutes = seconds % 3600 / 60
         switch (hours, minutes) {
-        case (0, _): return "\(minutes) min"
-        case (_, 0): return "\(hours) h"
-        default: return "\(hours) h \(String(format: "%02d", minutes))"
+        case (0, _): return String(localized: "\(minutes) min", comment: "Durée courte en minutes")
+        case (_, 0): return String(localized: "\(hours) h", comment: "Durée courte en heures")
+        default:
+            let paddedMinutes = String(format: "%02d", minutes)
+            return String(localized: "\(hours) h \(paddedMinutes)", comment: "Durée courte : heures puis minutes sur deux chiffres")
         }
     }
 }

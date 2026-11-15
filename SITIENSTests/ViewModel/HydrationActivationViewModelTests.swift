@@ -30,7 +30,8 @@ struct HydrationActivationViewModelTests {
         let fomatTimer = hydrationActivationViewModel.formatHour(hours)
         
         //Then
-        #expect(fomatTimer == "2 heures")
+        // Foundation sépare le nombre et l'unité par une espace insécable (U+00A0).
+        #expect(fomatTimer == "2\u{00A0}heures")
     }
     
     @Test func formatTimerWhenHourIfegaltoZero() async throws {

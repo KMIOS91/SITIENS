@@ -31,16 +31,12 @@ class HydrationActivationViewModel  {
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
-    func formatHour(_ secondes : Int) -> String{
-        let hours = secondes / 3600
-        let minutes = (secondes % 3600) / 60
-        if hours == 0 {
-            return "\(minutes) \(minutes > 1 ? "minutes" : "minute")"
-        } else if minutes == 0 {
-            return "\(hours) \(hours > 1 ? "heures" : "heure")"
-        } else {
-            return "\(hours) \(hours > 1 ? "heures" : "heure") et \(minutes) \(minutes > 1 ? "minutes" : "minute")"
-        }
+    /// Durée en toutes lettres, dans la langue de l'appareil :
+    /// « 1 heure et 30 minutes », « 1 hour, 30 minutes », « 1 Stunde und 30 Minuten »…
+    /// Foundation gère les pluriels et les mots de liaison de chaque langue.
+    func formatHour(_ secondes : Int) -> String {
+        Duration.seconds(secondes)
+            .formatted(.units(allowed: [.hours, .minutes], width: .wide, zeroValueUnits: .hide))
     }
 
     func playSound(sound:String) {

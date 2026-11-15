@@ -5,6 +5,8 @@
 //  Les différents états du minuteur, et ce que chacun permet.
 //
 
+import Foundation
+
 /// Chaque état sait comment il s'affiche et quels boutons il autorise.
 enum TimerState: Equatable {
     /// Aucune durée ou aucun son choisi.
@@ -19,11 +21,11 @@ enum TimerState: Equatable {
     /// Petit texte affiché sous le temps restant.
     var caption: String {
         switch self {
-        case .unset: "Choisissez une durée"
-        case .ready: "Prêt"
-        case .running: "avant de boire"
-        case .paused: "En pause"
-        case .finished: "C'est l'heure de boire"
+        case .unset: String(localized: "Choisissez une durée")
+        case .ready: String(localized: "Prêt")
+        case .running: String(localized: "avant de boire")
+        case .paused: String(localized: "En pause")
+        case .finished: String(localized: "C'est l'heure de boire")
         }
     }
 
@@ -33,9 +35,9 @@ enum TimerState: Equatable {
 
     var primaryLabel: String {
         switch self {
-        case .running: "Mettre en pause"
-        case .paused: "Reprendre"
-        default: "Démarrer"
+        case .running: String(localized: "Mettre en pause")
+        case .paused: String(localized: "Reprendre")
+        default: String(localized: "Démarrer")
         }
     }
 

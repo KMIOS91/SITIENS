@@ -30,13 +30,13 @@ enum HydrationProfile: String, CaseIterable, Identifiable {
 
     var name: String {
         switch self {
-        case .woman: "Femme (14 ans et plus)"
-        case .man: "Homme (14 ans et plus)"
-        case .pregnant: "Femme enceinte"
-        case .breastfeeding: "Femme allaitante"
-        case .girl9to13: "Fille de 9 à 13 ans"
-        case .boy9to13: "Garçon de 9 à 13 ans"
-        case .child4to8: "Enfant de 4 à 8 ans"
+        case .woman: String(localized: "Femme (14 ans et plus)")
+        case .man: String(localized: "Homme (14 ans et plus)")
+        case .pregnant: String(localized: "Femme enceinte")
+        case .breastfeeding: String(localized: "Femme allaitante")
+        case .girl9to13: String(localized: "Fille de 9 à 13 ans")
+        case .boy9to13: String(localized: "Garçon de 9 à 13 ans")
+        case .child4to8: String(localized: "Enfant de 4 à 8 ans")
         }
     }
 
@@ -89,15 +89,15 @@ enum HydrationExtraNeed: String, CaseIterable, Identifiable {
 
     var name: String {
         switch self {
-        case .exercise: "Activité physique"
-        case .heat: "Forte chaleur"
+        case .exercise: String(localized: "Activité physique")
+        case .heat: String(localized: "Forte chaleur")
         }
     }
 
     var detail: String {
         switch self {
-        case .exercise: "Séance de sport ou travail physique"
-        case .heat: "Canicule, climat chaud"
+        case .exercise: String(localized: "Séance de sport ou travail physique")
+        case .heat: String(localized: "Canicule, climat chaud")
         }
     }
 
@@ -105,16 +105,16 @@ enum HydrationExtraNeed: String, CaseIterable, Identifiable {
     var advice: String {
         switch self {
         case .exercise:
-            "L'effort fait perdre de 0,5 à 2,5 litres d'eau par heure. Buvez dès le début de l'exercice, sans attendre la soif."
+            String(localized: "L'effort fait perdre de 0,5 à 2,5 litres d'eau par heure. Buvez dès le début de l'exercice, sans attendre la soif.")
         case .heat:
-            "Buvez régulièrement de l'eau, sans attendre d'avoir soif. En travaillant dehors : au moins un verre d'eau toutes les 15 à 20 minutes."
+            String(localized: "Buvez régulièrement de l'eau, sans attendre d'avoir soif. En travaillant dehors : au moins un verre d'eau toutes les 15 à 20 minutes.")
         }
     }
 
     var sourceName: String {
         switch self {
-        case .exercise: "VIDAL – Les besoins en eau pendant l'effort"
-        case .heat: "Santé.fr – Fortes chaleurs et canicule"
+        case .exercise: String(localized: "VIDAL – Les besoins en eau pendant l'effort")
+        case .heat: String(localized: "Santé.fr – Fortes chaleurs et canicule")
         }
     }
 
