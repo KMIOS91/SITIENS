@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		733DB41E30A9E18300E607A0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 733DB41D30A9E18300E607A0 /* PrivacyInfo.xcprivacy */; };
+		733DB41F30A9E18300E607A0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 733DB41D30A9E18300E607A0 /* PrivacyInfo.xcprivacy */; };
 		739FF085309A807D00D089EB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 739FF084309A807D00D089EB /* WidgetKit.framework */; };
 		739FF087309A807D00D089EB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 739FF086309A807D00D089EB /* SwiftUI.framework */; };
 		739FF098309A807E00D089EB /* LiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 739FF082309A807D00D089EB /* LiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -68,6 +70,7 @@
 		4FA205952DA40CAF004C8CC4 /* SITIENS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SITIENS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA205A52DA40CB1004C8CC4 /* SITIENSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SITIENSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA205AF2DA40CB1004C8CC4 /* SITIENSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SITIENSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		733DB41D30A9E18300E607A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		739FF082309A807D00D089EB /* LiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		739FF084309A807D00D089EB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		739FF086309A807D00D089EB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -166,6 +169,7 @@
 		4FA2058C2DA40CAF004C8CC4 = {
 			isa = PBXGroup;
 			children = (
+				733DB41D30A9E18300E607A0 /* PrivacyInfo.xcprivacy */,
 				739FF1D2309A84B900D089EB /* LiveActivityExtension.entitlements */,
 				4FA205972DA40CAF004C8CC4 /* SITIENS */,
 				4FA205A82DA40CB1004C8CC4 /* SITIENSTests */,
@@ -346,6 +350,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				733DB41F30A9E18300E607A0 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,6 +372,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				733DB41E30A9E18300E607A0 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,7 +579,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = SITIENS.SITIENS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -610,7 +616,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = SITIENS.SITIENS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -709,7 +715,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = SITIENS.SITIENS.LiveActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -743,7 +749,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = SITIENS.SITIENS.LiveActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
