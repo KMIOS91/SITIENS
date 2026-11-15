@@ -35,6 +35,7 @@ struct TimerSettings: View {
     @State private var isUserScrubbing = false
     /// Hauteur totale du formulaire (barre de titre comprise), pour ajuster la feuille.
     @State private var contentHeight: CGFloat = 0
+    @State private var detent: PresentationDetent = .large
 
     var body: some View {
         NavigationStack {
@@ -101,6 +102,8 @@ struct TimerSettings: View {
                 geometry.contentSize.height + geometry.contentInsets.top + geometry.contentInsets.bottom
             } action: { _, height in
                 contentHeight = height
+                // Sans cette ligne, la feuille resterait sur `.large`, la taille de départ.
+                detent = .height(height)
             }
             .navigationTitle("Minuteur")
             .navigationBarTitleDisplayMode(.inline)
@@ -117,7 +120,7 @@ struct TimerSettings: View {
         }
         // La feuille prend la hauteur du contenu au lieu de tout l'écran.
         // `.large` reste disponible (en tirant vers le haut), utile avec une grande taille de texte.
-        .presentationDetents(contentHeight > 0 ? [.height(contentHeight), .large] : [.large])
+        .presentationDetents(contentHeight > 0 ? [.height(contentHeight), .large] : [.large], selection: $detent)
         .onDisappear{
             hydrationActivationViewModel.stopPlaying()
             isPlaying = false
