@@ -39,6 +39,9 @@ class DataHistoryHub : HydrationProtocol {
             avAudioEngine.stop()
 
             // iOS 27 : la nouvelle API signale ses erreurs (throws) ; iOS 26 : l'ancienne.
+            // `#if compiler` : ces API n'existent qu'à partir du SDK d'Xcode 27 (Swift 6.4) ;
+            // sans lui, un Xcode 26 (comme celui du CI) ne compile pas, même sous #available.
+            #if compiler(>=6.4)
             if #available(iOS 27, *) {
                 try avAudioEngine.connectNode(avAudioPlayerNode,
                                               to: avAudioEngine.outputNode,
@@ -48,6 +51,11 @@ class DataHistoryHub : HydrationProtocol {
                                       to: avAudioEngine.outputNode,
                                       format: file.processingFormat)
             }
+            #else
+            avAudioEngine.connect(avAudioPlayerNode,
+                                  to: avAudioEngine.outputNode,
+                                  format: file.processingFormat)
+            #endif
 
             avAudioPlayerNode
                 .scheduleFile(
@@ -58,11 +66,15 @@ class DataHistoryHub : HydrationProtocol {
 
             try avAudioEngine.start()
 
+            #if compiler(>=6.4)
             if #available(iOS 27, *) {
                 try avAudioPlayerNode.playAudio()
             } else {
                 avAudioPlayerNode.play()
             }
+            #else
+            avAudioPlayerNode.play()
+            #endif
 
         }catch {
             print("Erreur pendant la lecture : \(error.localizedDescription)")

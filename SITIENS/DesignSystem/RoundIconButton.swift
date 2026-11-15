@@ -21,8 +21,7 @@ struct RoundIconButton: View {
     let action: () -> Void
 
     var body: some View {
-        // Les deux styles de verre sont des types différents : on ne peut pas les choisir
-        // avec un simple opérateur ternaire, d'où le `if` dans un @ViewBuilder.
+
         if prominence == .primary {
             button
                 .buttonStyle(.glassProminent)
