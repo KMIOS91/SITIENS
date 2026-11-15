@@ -8,6 +8,7 @@ import Testing
 import XCTest
 @testable import SITIENS
 
+@MainActor
 struct HydrationActivationViewModelTests {
 
     @Test func formatTimerWhenAddNewElement() async throws {

@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 @Observable
 class HydrationActivationViewModel  {
     let hydrationProtocol : HydrationProtocol

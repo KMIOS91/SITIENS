@@ -9,8 +9,6 @@ import SwiftUI
 
 @main
 struct SITIENSApp: App {
-    // Mémorisé : l'introduction ne s'affiche qu'au premier lancement.
-    @AppStorage("hasSeenIntro") private var showMainApp: Bool = false
     @State private var hydrationActivationViewModel: HydrationActivationViewModel
     @State private var hydrationTimer: HydrationTimer
     @State private var historyViewModel: HistoryViewModel
@@ -30,45 +28,16 @@ struct SITIENSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            Group {
-                if showMainApp {
-                    TabView {
-                        
-                        Tab("Chronomètre", systemImage : "stopwatch") {
-                            Chronograph(timer: hydrationTimer, hydrationActivationViewModel: hydrationActivationViewModel)
-                                .environment(hydrationActivationViewModel)
-                                .transition(.opacity)
-                        }
-                        
-                        Tab("Hydratation", systemImage: "drop.fill") {
-                            WaterQuantityView(tracker: waterTracker, historyViewModel: historyViewModel)
-                                .transition(.opacity)
-                        }
-                    }
-                    
-                } else {
-                    TabView {
-                        
-                        Tab("Hydratation", systemImage: "drop.fill") {
-                            HomeView(hasSeenIntro: $showMainApp)
-                                .transition(.opacity)
-                        }
-                        
-                        Tab("Informations", systemImage: "info.circle") {
-                            InformationView(hasSeenIntro: $showMainApp)
-                                .transition(.opacity)
-                        }
-                        
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .always))
-                    .ignoresSafeArea()
-                    .onAppear {
-                        UIPageControl.appearance().pageIndicatorTintColor = .gray
-                        UIPageControl.appearance().currentPageIndicatorTintColor = UIColor(Color("TextBackground"))
-                    }
+            TabView {
+                Tab("Chronomètre", systemImage: "stopwatch") {
+                    Chronograph(timer: hydrationTimer, hydrationActivationViewModel: hydrationActivationViewModel)
+                        .environment(hydrationActivationViewModel)
+                }
+
+                Tab("Hydratation", systemImage: "drop.fill") {
+                    WaterQuantityView(tracker: waterTracker, historyViewModel: historyViewModel)
                 }
             }
-            .animation(.easeOut, value: showMainApp)
         }
     }
 }

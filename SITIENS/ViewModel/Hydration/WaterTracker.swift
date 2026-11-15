@@ -86,10 +86,10 @@ final class WaterTracker {
 
     // MARK: - Calculs
 
-    /// Objectif du jour en litres : celui du profil, plus les besoins supplémentaires (0 sans profil).
+    /// Objectif du jour en litres, celui du profil (0 sans profil).
+    /// Les besoins supplémentaires n'y ajoutent rien : ils affichent seulement un conseil sourcé.
     var targetLiters: Double {
-        guard let profile else { return 0 }
-        return profile.dailyLiters + extraNeeds.reduce(0) { $0 + $1.extraLiters }
+        profile?.dailyLiters ?? 0
     }
 
     /// Contenance du récipient en millilitres (0 sans récipient).

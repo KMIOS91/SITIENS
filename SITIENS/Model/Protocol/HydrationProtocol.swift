@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 protocol HydrationProtocol {
     func playingSound(audioFile : String)
     func stopPlaying()

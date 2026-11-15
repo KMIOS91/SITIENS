@@ -38,8 +38,11 @@ struct HydrationProfileTests {
         #expect(WaterContainer(rawValue: "Moyen – 300 ml") == .medium)
     }
 
-    @Test func eachExtraNeedAddsHalfALiter() {
-        #expect(HydrationExtraNeed.allCases.allSatisfy { $0.extraLiters == 0.5 })
+    @Test(arguments: HydrationExtraNeed.allCases)
+    func eachExtraNeedCitesASecureSource(need: HydrationExtraNeed) {
+        #expect(!need.advice.isEmpty)
+        #expect(!need.sourceName.isEmpty)
+        #expect(need.sourceURL.scheme == "https")
     }
 
     // MARK: - Récipients

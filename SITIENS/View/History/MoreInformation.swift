@@ -40,7 +40,7 @@ struct MoreInformation: View {
             .padding(24)
         }
         .background { AppBackground() }
-        .navigationTitle(entry.name)
+        .navigationTitle("Détail")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -70,6 +70,6 @@ private struct DetailRow: View {
 
 #Preview {
     NavigationStack {
-        MoreInformation(entry: ManagementHistory(name: "Sportifs", quantity: "3,0 L", date: "08/11/2026"))
+        MoreInformation(entry: ManagementHistory(name: "Travailleurs en environnement chaud", quantity: "3,0 L", date: "08/11/2026"))
     }
 }

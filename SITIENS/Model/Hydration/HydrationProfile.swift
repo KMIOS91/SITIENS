@@ -11,6 +11,8 @@
 //  c'est cette part, à boire, que l'app affiche comme objectif.
 //
 
+import Foundation
+
 /// Profil choisi dans les réglages : il fixe l'objectif du jour.
 ///
 /// La `rawValue` est un identifiant stable enregistré dans UserDefaults ;
@@ -74,7 +76,11 @@ enum HydrationProfile: String, CaseIterable, Identifiable {
     }
 }
 
-/// Besoins qui s'ajoutent au profil, certains jours.
+/// Situations où il faut penser à boire davantage, certains jours.
+///
+/// Elles ne changent pas l'objectif : aucune source fiable ne donne de quantité fixe à ajouter
+/// par jour (les besoins dépendent de la durée, de l'intensité et de la personne).
+/// Chacune affiche un conseil repris de sa source, avec un lien vers celle-ci.
 enum HydrationExtraNeed: String, CaseIterable, Identifiable {
     case exercise
     case heat
@@ -91,11 +97,33 @@ enum HydrationExtraNeed: String, CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .exercise: "Séance de sport ou travail physique"
-        case .heat: "Canicule, climat chaud, altitude"
+        case .heat: "Canicule, climat chaud"
         }
     }
 
-    /// Supplément à boire, en litres. Le Vidal recommande « au moins un demi-litre »
-    /// de plus par forte chaleur ; une heure de sport fait perdre environ un litre.
-    var extraLiters: Double { 0.5 }
+    /// Conseil affiché quand la situation est cochée, repris de `sourceName`.
+    var advice: String {
+        switch self {
+        case .exercise:
+            "L'effort fait perdre de 0,5 à 2,5 litres d'eau par heure. Buvez dès le début de l'exercice, sans attendre la soif."
+        case .heat:
+            "Buvez régulièrement de l'eau, sans attendre d'avoir soif. En travaillant dehors : au moins un verre d'eau toutes les 15 à 20 minutes."
+        }
+    }
+
+    var sourceName: String {
+        switch self {
+        case .exercise: "VIDAL – Les besoins en eau pendant l'effort"
+        case .heat: "Santé.fr – Fortes chaleurs et canicule"
+        }
+    }
+
+    var sourceURL: URL {
+        switch self {
+        case .exercise:
+            URL(string: "https://www.vidal.fr/sante/nutrition/equilibre-alimentaire-sportif/besoins-eau-sportifs.html")!
+        case .heat:
+            URL(string: "https://www.sante.fr/fortes-chaleurs-et-canicule-se-proteger-et-proteger-ses-proches")!
+        }
+    }
 }

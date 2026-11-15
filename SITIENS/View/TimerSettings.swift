@@ -33,6 +33,8 @@ struct TimerSettings: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var progress: Double = 0.0
     @State private var isUserScrubbing = false
+    /// Hauteur totale du formulaire (barre de titre comprise), pour ajuster la feuille.
+    @State private var contentHeight: CGFloat = 0
 
     var body: some View {
         NavigationStack {
@@ -93,6 +95,13 @@ struct TimerSettings: View {
             }
             .scrollContentBackground(.hidden)
             .background { AppBackground() }
+            // Le Form est une liste défilante : on lit la hauteur de son contenu,
+            // plus ses marges (barre de titre en haut, zone de sécurité en bas).
+            .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentSize.height + geometry.contentInsets.top + geometry.contentInsets.bottom
+            } action: { _, height in
+                contentHeight = height
+            }
             .navigationTitle("Minuteur")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -106,6 +115,9 @@ struct TimerSettings: View {
                 }
             }
         }
+        // La feuille prend la hauteur du contenu au lieu de tout l'écran.
+        // `.large` reste disponible (en tirant vers le haut), utile avec une grande taille de texte.
+        .presentationDetents(contentHeight > 0 ? [.height(contentHeight), .large] : [.large])
         .onDisappear{
             hydrationActivationViewModel.stopPlaying()
             isPlaying = false

@@ -185,12 +185,13 @@ struct WaterTrackerTests {
 
     // MARK: - Besoins supplémentaires
 
-    @Test func extraNeedsRaiseTheGoal() {
+    @Test func extraNeedsDoNotChangeTheGoal() {
         let tracker = makeConfiguredTracker()
+        let goal = tracker.targetLiters
+        let glasses = tracker.glassesPerDay
         tracker.extraNeeds = [.exercise, .heat]
-        #expect(tracker.targetLiters == 3)
-        #expect(tracker.glassesPerDay == 6)
-        #expect(widget.lastTarget == 3)
+        #expect(tracker.targetLiters == goal)
+        #expect(tracker.glassesPerDay == glasses)
     }
 
     @Test func extraNeedsAreSaved() {

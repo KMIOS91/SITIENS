@@ -61,14 +61,18 @@ struct UserSettingsView: View {
                 } header: {
                     Text("Aujourd'hui")
                 } footer: {
-                    Text("Chaque besoin ajoute \(liters(0.5)) à l'objectif.")
+                    extraNeedsAdvice
                 }
 
                 Section {
                 } footer: {
+                    // Chaîne littérale : `Text` la lit comme une `LocalizedStringKey`,
+                    // ce qui active le Markdown (le lien est cliquable).
                     Text("""
-                    Repères de l'EFSA (Autorité européenne de sécurité des aliments) pour une personne \
-                    en bonne santé, par température et activité modérées. Avant 6 mois, un bébé ne boit \
+                    Repères de l'EFSA ([Autorité européenne de sécurité des aliments, 2010](https://doi.org/10.2903/j.efsa.2010.1459)) \
+                    pour une personne en bonne santé, par température et activité physique modérées. \
+                    Ils portent sur l'apport total en eau, boissons et aliments compris : l'objectif \
+                    affiché correspond à la part à boire, environ 80 %. Avant 6 mois, un bébé ne boit \
                     que du lait. En cas de maladie (cœur, reins…) ou de traitement, demandez conseil à \
                     un professionnel de santé : certaines situations demandent au contraire de limiter l'eau.
                     """)
@@ -84,6 +88,27 @@ struct UserSettingsView: View {
                         dismiss()
                     }
                     .disabled(profil == nil || glace == nil)
+                }
+            }
+        }
+    }
+
+    /// Conseil et source de chaque besoin coché.
+    /// `advice` et `sourceName` sont des variables `String` : `Text` les affiche telles quelles,
+    /// sans Markdown. Le lien passe donc par une vue `Link`.
+    @ViewBuilder
+    private var extraNeedsAdvice: some View {
+        let active = HydrationExtraNeed.allCases.filter(extraNeeds.contains)
+        if active.isEmpty {
+            Text("Ces situations ne changent pas l'objectif : elles affichent un conseil.")
+        } else {
+            VStack(alignment: .leading, spacing: 12) {
+                ForEach(active) { need in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(need.advice)
+                        Link(need.sourceName, destination: need.sourceURL)
+                            .font(.footnote)
+                    }
                 }
             }
         }
