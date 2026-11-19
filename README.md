@@ -48,4 +48,4 @@ Utilisez **Xcode**, l’environnement officiel d’Apple pour créer, tester et 
 
 1. Clonez ce dépôt :
    ```bash
-   git clone https://github.com/votre-utilisateur/sitiens.git
+   git clone https://github.com/KMIOS91/SITIENS/sitiens.git
