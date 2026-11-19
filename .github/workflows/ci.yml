@@ -1,36 +1,4 @@
-#name: iOS Build and Test
-#
-#on:
-#  pull_request:
-#    branches:
-#      - main
-#
-#jobs:
-#  build-and-test:
-#    runs-on: macos-latest
-#
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v4
-#
-#      - name: Build and Test
-#        uses: sersoft-gmbh/xcodebuild-action@v3.2.0
-#        with:
-#          project: SITIENS.xcodeproj
-#          scheme: SITIENS
-#          destination: 'platform=iOS Simulator,name=iPhone 16e,OS=18.4'
-#          action: test
-#          result-bundle-path: TestResults   # <- dossier simple
-#
-#      # Debug : voir ce qui a été créé dans TestResults
-#      - name: List results
-#        run: ls -R TestResults
-#
-#      - name: Process Test Results
-#        uses: kishikawakatsumi/xcresulttool@v1
-#        if: ${{ success() || failure() }}
-#        with:
-#          path: TestResults/SITIENS.xcresult   # <- adapte au vrai nom listé ci-dessus
+
 name: CI
 
 on:
